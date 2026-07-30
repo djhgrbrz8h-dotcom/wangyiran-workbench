@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#FF8C00">
+<title>王一然工作台</title>
+<link rel="manifest" href="manifest.json">
+<style>
+:root{--y:#FFB347;--yl:#FFF3E0;--ys:#FFCC80;--yd:#FF8C00;--yc:#FFF8F0;--pink:#FF8FB1;--green:#6BCB77;--red:#FF6B6B;--blue:#74B9FF;--purple:#C9A0FF;--t:#3D3028;--tm:#7D6B58;--tl:#B5A590;--bg:#FFF8F0;--card:#FFFFFF;--sb:#F0E8DC;--sh:0 2px 8px rgba(0,0,0,.06);--r:16px;--rs:12px}
+*{margin:0;padding:0;box-sizing:border-box;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+input,textarea,select{-webkit-user-select:text;user-select:text}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Segoe UI',sans-serif;background:var(--bg);color:var(--t);line-height:1.5;height:100vh;display:flex;overflow:hidden}
+/* 左侧导航 */
+.nav{width:220px;background:var(--card);border-right:1px solid var(--sb);display:flex;flex-direction:column;flex-shrink:0;z-index:100;box-shadow:2px 0 16px rgba(0,0,0,.03)}
+.nav-h{padding:18px 14px 12px;display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#FFF3E0,#FFE0B2);border-bottom:1px solid var(--sb)}
+.nav-a{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--y),var(--yd));display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff;flex-shrink:0;box-shadow:0 3px 10px rgba(255,140,0,.3)}
+.nav-n{font-size:16px;font-weight:700;color:var(--yd)}
+.nav-s{font-size:11px;color:var(--tm)}
+.nav-m{flex:1;padding:6px 10px;overflow-y:auto}
+.nav-i{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:10px;text-decoration:none;color:var(--tm);font-size:13.5px;font-weight:500;cursor:pointer;margin-bottom:3px;transition:all .18s;position:relative}
+.nav-i:hover{background:var(--yl);color:var(--t)}
+.nav-i.active{background:linear-gradient(135deg,#FFF3E0,#FFE0B2);color:var(--yd);font-weight:700}
+.nav-i.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--yd);border-radius:3px}
+.nav-icon{font-size:18px;width:22px;text-align:center}
+.nav-f{padding:12px 14px;border-top:1px solid var(--sb);display:flex;gap:6px}
+.nav-btn{flex:1;padding:8px;border:1.5px solid var(--sb);background:var(--card);border-radius:10px;font-size:11px;color:var(--tm);cursor:pointer;transition:all .15s}
+.nav-btn:hover{background:var(--yl);border-color:var(--y)}
+.nav-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:90}
+/* 主区域 */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.header{height:54px;background:linear-gradient(135deg,#FFF8F0,#FFF3E0);border-bottom:1px solid var(--sb);display:flex;align-items:center;gap:12px;padding:0 18px;flex-shrink:0}
+.menu-btn{display:none;width:38px;height:38px;border:none;background:var(--yl);border-radius:10px;font-size:18px;cursor:pointer;color:var(--t)}
+.header-t{font-size:18px;font-weight:800;flex:1;color:var(--yd)}
+.header-d{font-size:12px;color:var(--tm);background:var(--yl);padding:4px 10px;border-radius:8px}
+.page{display:none;flex:1;overflow-y:auto;padding:16px 18px;animation:fadeIn .25s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+/* 卡片 */
+.card{background:var(--card);border-radius:var(--r);padding:18px;margin-bottom:14px;border:1px solid var(--sb);box-shadow:var(--sh)}
+.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.card-title{font-size:16px;font-weight:800;display:flex;align-items:center;gap:8px}
+.card-title .emoji{font-size:20px}
+.btn-add{padding:7px 16px;border-radius:20px;border:none;background:linear-gradient(135deg,var(--y),var(--yd));color:#fff;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;box-shadow:0 2px 8px rgba(255,140,0,.2)}
+.btn-add:active{transform:scale(.95)}
+.btn-sm{padding:5px 12px;border-radius:14px;border:1.5px solid var(--y);background:#fff;color:var(--yd);font-size:11px;font-weight:600;cursor:pointer;transition:all .15s}
+.btn-sm:hover{background:var(--yl)}
+/* 筛选 */
+.filter-bar{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.filter-pill{padding:5px 13px;border-radius:14px;background:var(--yc);border:1.5px solid transparent;font-size:12px;color:var(--tm);cursor:pointer;transition:all .15s}
+.filter-pill:hover{background:var(--yl)}
+.filter-pill.active{background:var(--y);color:#fff;border-color:var(--y);font-weight:700}
+/* 任务 */
+.task-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:var(--rs);background:var(--yc);margin-bottom:7px;transition:all .2s;border:1px solid transparent}
+.task-item:hover{border-color:var(--y);background:#fff}
+.task-item.done{opacity:.45}
+.task-item.done .task-text{text-decoration:line-through}
+.task-check{width:22px;height:22px;border-radius:50%;border:2.5px solid var(--yd);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;background:#fff;transition:all .15s}
+.task-check:hover{background:var(--yl)}
+.task-check.checked{background:linear-gradient(135deg,var(--green),#4CAF50);border-color:var(--green)}
+.task-check.checked::after{content:'\2713';color:#fff;font-size:13px;font-weight:bold}
+.task-text{font-size:14px;font-weight:500;flex:1}
+.task-meta{display:flex;gap:6px;align-items:center;flex-shrink:0}
+.task-time{font-size:11px;color:var(--tl)}
+.tag-pill{font-size:10px;padding:3px 8px;border-radius:8px;font-weight:700}
+.tag-red{background:#FFE0E0;color:#E85555}
+.tag-orange{background:#FFF0E0;color:#FF9F43}
+.tag-green{background:#D4F5DD;color:#4CAF50}
+.tag-blue{background:#D6E4FF;color:#1890FF}
+.tag-purple{background:#EDE0FF;color:#8B5CF6}
+.task-del{width:28px;height:28px;border:none;background:none;color:var(--tl);font-size:14px;cursor:pointer;opacity:.3;flex-shrink:0;border-radius:8px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.task-del:hover{opacity:1;color:var(--red);background:rgba(255,107,107,.1)}
+/* 心情 */
+.mood-picker{display:flex;gap:10px;margin-bottom:12px}
+.mood-face{width:44px;height:44px;border-radius:50%;border:2.5px solid transparent;background:var(--yc);font-size:22px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center}
+.mood-face:hover{transform:scale(1.15)}
+.mood-face.on{border-color:var(--y);background:var(--yl);transform:scale(1.15);box-shadow:0 2px 10px rgba(255,140,0,.2)}
+.memo-textarea{width:100%;min-height:80px;border:2px solid #FFE0B2;border-radius:var(--rs);padding:12px;font-size:14px;font-family:inherit;resize:vertical;background:var(--yc);color:var(--t);outline:none;line-height:1.6}
+.memo-textarea:focus{border-color:var(--y)}
+/* 鼓励语 */
+.encourage-box{background:linear-gradient(135deg,#FFF3E0,#FFE0B2);border-radius:var(--r);padding:16px 18px;margin-bottom:14px;text-align:center;border:1px solid var(--y)}
+.encourage-text{font-size:18px;font-weight:700;color:var(--yd)}
+.encourage-sub{font-size:12px;color:var(--tm);margin-top:4px}
+/* 新闻+理财 */
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+@media(max-width:768px){.info-grid{grid-template-columns:1fr}}
+.info-card{background:var(--card);border-radius:var(--r);padding:14px;border:1px solid var(--sb);box-shadow:var(--sh)}
+.info-card-title{font-size:14px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.info-card-text{font-size:13px;color:var(--tm);line-height:1.6}
+.info-card-title-sm{font-size:13px;font-weight:700;color:var(--yd);margin-bottom:4px}
+/* 运动 */
+.sport-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;margin-bottom:12px}
+.sport-item{padding:12px 8px;border-radius:var(--rs);background:var(--yc);border:2px solid transparent;text-align:center;cursor:pointer;transition:all .15s}
+.sport-item:hover{border-color:var(--y);background:#fff}
+.sport-item.on{background:linear-gradient(135deg,#FFF3E0,#FFE0B2);border-color:var(--yd)}
+.sport-emoji{font-size:26px;display:block}
+.sport-name{font-size:11px;font-weight:600;margin-top:4px}
+.sport-status{font-size:10px;color:var(--green);margin-top:2px}
+/* 爆款 */
+.hot-item{background:var(--card);border-radius:var(--r);border:1px solid var(--sb);margin-bottom:10px;overflow:hidden;transition:all .15s}
+.hot-item:hover{border-color:var(--y);box-shadow:0 3px 12px rgba(255,140,0,.1)}
+.hot-cover{height:200px;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;overflow:hidden;border-radius:var(--r) var(--r) 0 0}
+.hot-cover::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.05) 30%,rgba(0,0,0,.55) 100%);z-index:1}
+.hot-cover::after{content:'';position:absolute;top:20px;left:20px;right:20px;bottom:20px;border:2px solid rgba(255,255,255,.2);border-radius:8px;z-index:1;pointer-events:none}
+.hot-cover:hover .hot-play{transform:scale(1.1);box-shadow:0 4px 20px rgba(0,0,0,.25)}
+.hot-cover-bg{position:absolute;inset:0;background-size:cover;background-position:center;opacity:.7}
+.hot-cover-overlay{position:absolute;bottom:12px;left:14px;right:14px;z-index:2;display:flex;align-items:flex-end;justify-content:space-between;gap:8px}
+.hot-cover-title{color:#fff;font-size:13px;font-weight:700;line-height:1.4;text-shadow:0 1px 4px rgba(0,0,0,.6);flex:1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hot-cover-duration{background:rgba(0,0,0,.6);color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;flex-shrink:0}
+.hot-play{width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.9);display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 2px 16px rgba(0,0,0,.2);position:relative;z-index:3;transition:all .2s}
+/* 视频弹窗 */
+.video-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;display:none;flex-direction:column;align-items:center;justify-content:center}
+.video-modal.show{display:flex}
+.video-modal-close{position:absolute;top:16px;right:16px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.2);border:none;color:#fff;font-size:20px;cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center}
+.video-modal-content{width:100%;max-width:420px;background:#000;border-radius:12px;overflow:hidden;position:relative}
+.video-modal-content iframe{width:100%;height:560px;border:none}
+.video-modal-info{color:#fff;padding:12px 16px;text-align:center}
+.video-modal-info .vtitle{font-size:15px;font-weight:700;margin-bottom:4px}
+.video-modal-info .vauthor{font-size:12px;opacity:.7}
+.video-modal-actions{display:flex;gap:8px;padding:0 16px 16px}
+.video-modal-actions .vm-btn{flex:1;padding:10px;border-radius:10px;border:none;font-size:13px;font-weight:700;cursor:pointer}
+.vm-btn-light{background:rgba(255,255,255,.15);color:#fff}
+.vm-btn-main{background:var(--y);color:#fff}
+.hot-rank{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.55);color:var(--y);padding:3px 9px;border-radius:8px;font-size:11px;font-weight:700}
+.hot-match{position:absolute;top:8px;right:8px;background:var(--green);color:#fff;padding:3px 9px;border-radius:8px;font-size:10px;font-weight:700}
+.hot-body{padding:12px}
+.hot-title{font-size:14px;font-weight:700;line-height:1.4;margin-bottom:4px}
+.hot-author{font-size:11px;color:var(--tm);margin-bottom:6px}
+.hot-stats{font-size:11px;color:var(--tl);margin-bottom:8px}
+.hot-style{font-size:10px;color:var(--tm);background:var(--yc);padding:3px 8px;border-radius:6px;display:inline-block;margin-bottom:8px}
+.hot-tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px}
+.hot-tag{font-size:10px;background:#FFF0E0;color:var(--yd);padding:2px 7px;border-radius:6px}
+.hot-actions{display:flex;gap:6px}
+.hot-btn{flex:1;padding:8px;border-radius:10px;border:none;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s}
+.hot-btn:active{transform:scale(.95)}
+.hot-btn-light{background:var(--yl);color:var(--yd)}
+.hot-btn-light:hover{background:#FFE0B2}
+.hot-btn-main{background:linear-gradient(135deg,var(--y),var(--yd));color:#fff}
+.hot-btn-main:hover{opacity:.9}
+.search-box{position:relative;margin-bottom:12px}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:15px}
+.search-input{width:100%;padding:10px 14px 10px 36px;border:2px solid #FFE0B2;border-radius:var(--r);font-size:14px;background:#fff;outline:none}
+.search-input:focus{border-color:var(--y)}
+.update-info{font-size:12px;color:var(--tm);margin-bottom:12px;padding:6px 12px;background:var(--yc);border-radius:10px;display:flex;align-items:center;gap:6px}
+/* 灵感 */
+.inspire-item{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;border-radius:var(--rs);background:var(--yc);margin-bottom:7px;border-left:3px solid var(--pink)}
+.inspire-emoji{font-size:20px;flex-shrink:0}
+.inspire-text{font-size:14px;flex:1;line-height:1.5}
+.inspire-link{font-size:11px;color:var(--blue);cursor:pointer;word-break:break-all;margin-top:3px;display:block}
+.inspire-link:hover{text-decoration:underline}
+.inspire-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.inspire-tag{font-size:10px;background:var(--yl);color:var(--yd);padding:2px 8px;border-radius:6px}
+/* 复盘 */
+.review-item{background:var(--card);border-radius:var(--r);padding:14px;margin-bottom:10px;border:1px solid var(--sb);border-left:4px solid var(--y)}
+.review-title{font-size:15px;font-weight:700;margin-bottom:4px}
+.review-date{font-size:11px;color:var(--tl);margin-bottom:10px}
+.review-metrics{display:flex;gap:8px;margin-bottom:10px}
+.review-metric{background:var(--yc);padding:7px 10px;border-radius:8px;text-align:center;min-width:50px}
+.review-metric-val{font-size:15px;font-weight:700;color:var(--yd)}
+.review-metric-label{font-size:9px;color:var(--tl)}
+.review-analysis{background:var(--yc);border-radius:10px;padding:10px;font-size:13px;color:var(--tm);line-height:1.6;margin-bottom:8px}
+.review-suggest{background:#E8F5E9;border-radius:10px;padding:10px;font-size:13px;color:var(--t);line-height:1.6}
+/* 样品 */
+.sample-section{margin-bottom:14px}
+.sample-section-title{font-size:14px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px;color:var(--yd)}
+.sample-section-title .count{font-size:12px;color:var(--tl);font-weight:400}
+.sample-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;background:var(--yc);margin-bottom:5px;transition:all .15s;cursor:pointer}
+.sample-item:hover{background:#fff;border-color:var(--y)}
+.sample-note-btn{width:28px;height:28px;border:none;background:none;color:var(--tm);font-size:13px;cursor:pointer;opacity:.4;flex-shrink:0;border-radius:8px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.sample-note-btn:hover{opacity:1;color:var(--yd);background:var(--yl)}
+.sample-dot{width:22px;height:22px;border-radius:50%;border:2.5px solid var(--yd);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;background:#fff;transition:all .15s}
+.sample-dot.done{background:var(--green);border-color:var(--green)}
+.sample-dot.done::after{content:'\2713';color:#fff;font-size:12px;font-weight:bold}
+.sample-dot.progress{border-style:dashed;border-color:var(--blue)}
+.sample-info{flex:1;min-width:0}
+.sample-name{font-size:13px;font-weight:600}
+.sample-note{font-size:10px;color:var(--tl);margin-top:1px}
+.sample-badge{font-size:10px;padding:2px 7px;border-radius:6px;font-weight:600;flex-shrink:0}
+.badge-done{background:#D4F5DD;color:#4CAF50}
+.badge-repeat{background:#FFF0E0;color:#FF9F43}
+.badge-pending{background:#FFE0E0;color:#E85555}
+.badge-script{background:#D6E4FF;color:#1890FF}
+/* 日历排期 */
+.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:12px}
+.cal-day-header{text-align:center;font-size:11px;font-weight:700;color:var(--tl);padding:4px}
+.cal-day{aspect-ratio:1;border-radius:10px;background:var(--yc);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:13px;font-weight:600;position:relative;transition:all .15s;border:2px solid transparent}
+.cal-day:hover{background:#fff;border-color:var(--y)}
+.cal-day.today{background:linear-gradient(135deg,#FFF3E0,#FFE0B2);border-color:var(--yd);font-weight:800}
+.cal-day.other-month{opacity:.3}
+.cal-day.has-event::after{content:'';position:absolute;bottom:4px;width:6px;height:6px;border-radius:50%;background:var(--yd)}
+.cal-emoji{font-size:10px;position:absolute;top:2px;right:2px}
+/* 脚本 */
+
+
+
+
+
+
+
+
+/* 排期 */
+.schedule-item{display:flex;gap:10px;padding:10px 14px;border-radius:10px;background:var(--card);margin-bottom:6px;border:1px solid var(--sb);align-items:center;cursor:pointer;transition:all .15s}
+.schedule-item:hover{background:var(--yl)}
+.schedule-time{flex-shrink:0;text-align:center;min-width:44px;background:var(--yl);border-radius:8px;padding:6px 4px}
+.schedule-time-h{font-size:14px;font-weight:700;color:var(--yd)}
+.schedule-time-d{font-size:9px;color:var(--tl)}
+.schedule-info{flex:1}
+.schedule-title{font-size:14px;font-weight:600}
+.schedule-desc{font-size:11px;color:var(--tm)}
+.schedule-remind{display:inline-flex;align-items:center;gap:3px;font-size:10px;color:var(--red);background:#FFF0F0;padding:2px 8px;border-radius:8px;margin-top:3px}
+.schedule-dot{width:8px;height:8px;border-radius:50%;position:absolute;top:10px;right:10px}
+.dot-pending{background:var(--yd)}
+.dot-done{background:var(--green)}
+.dot-missed{background:var(--red)}
+/* 空状态 */
+.empty-state{text-align:center;padding:30px;color:var(--tl)}
+.empty-emoji{font-size:36px;margin-bottom:8px}
+.empty-text{font-size:13px}
+/* FAB */
+.fab-btn{position:fixed;bottom:22px;right:22px;width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--y),var(--yd));border:none;box-shadow:0 4px 18px rgba(255,140,0,.35);font-size:24px;color:#fff;cursor:pointer;z-index:50;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.fab-btn:active{transform:scale(.88)}
+/* 模态框 */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:none;align-items:flex-end;justify-content:center}
+.modal-bg.show{display:flex}
+.modal-box{background:#fff;width:100%;max-width:480px;border-radius:22px 22px 0 0;padding:20px;max-height:88vh;overflow-y:auto;animation:slideUp .25s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.modal-title{font-size:18px;font-weight:800}
+.modal-x{width:30px;height:30px;border:none;background:var(--yl);border-radius:50%;font-size:16px;cursor:pointer;color:var(--tm);display:flex;align-items:center;justify-content:center;transition:all .15s}
+.modal-x:active{background:var(--y)}
+.form-line{margin-bottom:12px}
+.form-label{font-size:12px;font-weight:700;color:var(--t);margin-bottom:4px;display:block}
+.form-input{width:100%;padding:10px 14px;border:2px solid #FFE0B2;border-radius:10px;font-size:14px;font-family:inherit;background:var(--yc);color:var(--t);outline:none}
+.form-input:focus{border-color:var(--y)}
+.textarea{resize:vertical;min-height:80px;line-height:1.5}
+.form-row{display:flex;gap:10px}
+.form-row .form-line{flex:1}
+.form-row-4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.btn-confirm{width:100%;padding:13px;background:linear-gradient(135deg,var(--y),var(--yd));border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:800;cursor:pointer;margin-top:6px;transition:all .15s;box-shadow:0 3px 12px rgba(255,140,0,.25)}
+.btn-confirm:active{opacity:.85;transform:scale(.97)}
+.btn-outline{width:100%;padding:11px;background:#fff;border:2px solid var(--y);border-radius:12px;color:var(--yd);font-size:14px;font-weight:700;cursor:pointer;margin-top:6px;transition:all .15s}
+.btn-outline:active{background:var(--yl)}
+
+/* Toast */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:rgba(61,48,40,.9);color:#fff;padding:9px 20px;border-radius:20px;font-size:13px;z-index:300;opacity:0;pointer-events:none;transition:all .25s}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-8px)}
+@media(max-width:768px){.nav{position:fixed;left:0;top:0;bottom:0;transform:translateX(-100%);transition:transform .25s;box-shadow:2px 0 20px rgba(0,0,0,.1)}.nav.open{transform:translateX(0)}.nav-overlay.show{display:block}.menu-btn{display:flex;align-items:center;justify-content:center}.page{padding:12px}.fab-btn{bottom:18px;right:18px}}
+</style>
+</head>
+<body>
+
+<aside class="nav" id="navSidebar">
+  <div class="nav-h">
+    <div class="nav-a">然</div>
+    <div><div class="nav-n">王一然</div><div class="nav-s">创作工作台 · ENTP</div></div>
+  </div>
+  <nav class="nav-m">
+    <a class="nav-i active" data-page="home" onclick="goPage('home')"><span class="nav-icon">🏠</span>主页</a>
+    <a class="nav-i" data-page="tasks" onclick="goPage('tasks')"><span class="nav-icon">📋</span>每日计划</a>
+    <a class="nav-i" data-page="inspire" onclick="goPage('inspire')"><span class="nav-icon">💡</span>选题灵感</a>
+    <a class="nav-i" data-page="hot" onclick="goPage('hot')"><span class="nav-icon">🔥</span>爆款热点</a>
+        <a class="nav-i" data-page="review" onclick="goPage('review')"><span class="nav-icon">📊</span>内容复盘</a>
+    <a class="nav-i" data-page="samples" onclick="goPage('samples')"><span class="nav-icon">📦</span>样品清单</a>
+    <a class="nav-i" data-page="schedule" onclick="goPage('schedule')"><span class="nav-icon">📅</span>发布排期</a>
+    <a class="nav-i" data-page="sport" onclick="goPage('sport')"><span class="nav-icon">🏃</span>每日运动</a>
+    <a class="nav-i" data-page="memo" onclick="goPage('memo')"><span class="nav-icon">📝</span>备忘录</a>
+  </nav>
+  <div class="nav-f">
+    <button class="nav-btn" onclick="exportData()">📤 导出</button>
+    <button class="nav-btn" onclick="document.getElementById('importFile').click()">📥 导入</button>
+    <input type="file" id="importFile" style="display:none" accept=".json" onchange="importData(event)">
+  </div>
+</aside>
+<div class="nav-overlay" id="navOverlay" onclick="toggleNav()"></div>
+
+<main class="main">
+  <header class="header">
+    <button class="menu-btn" onclick="toggleNav()">☰</button>
+    <div class="header-t" id="headerTitle">主页</div>
+    <div class="header-d" id="headerDate"></div>
+  </header>
+
+  <!-- 主页 -->
+  <div class="page active" id="page-home">
+    <div class="encourage-box"><div class="encourage-text" id="encourageText">✨</div><div class="encourage-sub" id="encourageDate"></div></div>
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="info-card-title">📰 今日热点</div>
+        <div class="info-card-text" id="newsContent">加载中...</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-title">📈 投资小白课堂</div>
+        <div class="info-card-title-sm" id="investTitle"></div>
+        <div class="info-card-text" id="investContent">加载中...</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2 class="card-title"><span class="emoji">😊</span>今日状态</h2></div>
+      <div class="mood-picker" id="moodPicker">
+        <button class="mood-face" data-m="😎" onclick="setMood('😎')">😎</button>
+        <button class="mood-face" data-m="😊" onclick="setMood('😊')">😊</button>
+        <button class="mood-face" data-m="😐" onclick="setMood('😐')">😐</button>
+        <button class="mood-face" data-m="😴" onclick="setMood('😴')">😴</button>
+        <button class="mood-face" data-m="😤" onclick="setMood('😤')">😤</button>
+        <button class="mood-face" data-m="🔥" onclick="setMood('🔥')">🔥</button>
+      </div>
+      <textarea class="memo-textarea" id="statusNote" placeholder="记录今天的心情、想法、进度..." onblur="saveStatusNote()"></textarea>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2 class="card-title"><span class="emoji">📋</span>今日待办速览</h2></div>
+      <div id="homeTaskPreview"></div>
+    </div>
+  </div>
+
+  <!-- 每日计划 -->
+  <div class="page" id="page-tasks">
+    <div class="card">
+      <div class="card-head"><h2 class="card-title"><span class="emoji">📋</span>每日任务</h2><button class="btn-add" onclick="openModal('taskModal')">+ 添加</button></div>
+      <div class="filter-bar">
+        <button class="filter-pill active" onclick="filterTasks('all',this)">全部</button>
+        <button class="filter-pill" onclick="filterTasks('pending',this)">未完成</button>
+        <button class="filter-pill" onclick="filterTasks('done',this)">已完成</button>
+      </div>
+      <div id="taskList"></div>
+    </div>
+  </div>
+
+  <!-- 选题灵感 -->
+  <div class="page" id="page-inspire">
+    <div class="card">
+      <div class="card-head"><h2 class="card-title"><span class="emoji">💡</span>灵感记录</h2><button class="btn-add" onclick="openModal('inspirationModal')">+ 记录</button></div>
+      <div id="inspirationList"></div>
+    </div>
+  </div>
+
+  <!-- 爆款热点 -->
+  <div class="page" id="page-hot">
+    <div class="card">
+      <div class="card-head"><h2 class="card-title"><span class="emoji">🔥</span>爆款热点视频</h2><button class="btn-add" onclick="refreshHot()">🔄 刷新</button></div>
+      <div class="search-box"><span class="search-icon">🔍</span><input class="search-input" id="hotSearchInput" placeholder="搜索关键词..." onkeyup="searchHot()"></div>
+      <div class="filter-bar">
+        <button class="filter-pill active" onclick="filterHot('all',this)">全部</button>
+        <button class="filter-pill" onclick="filterHot('好物',this)">好物</button>
+        <button class="filter-pill" onclick="filterHot('穿搭',this)">穿搭</button>
+        <button class="filter-pill" onclick="filterHot('生活',this)">生活</button>
+        <button class="filter-pill" onclick="filterHot('成长',this)">成长</button>
+        <button class="filter-pill" onclick="filterHot('搞钱',this)">搞钱</button>
+      </div>
+      <div class="update-info" id="hotUpdateTime">🔄 点击刷新获取最新爆款</div>
+      <div id="hotVideoList"></div>
+    </div>
+  </div>
+
+  <!-- 内容复盘 -->
+  <div class="page" id="page-review">
+    <div class="card">
+      <div class="card-head"><h2 class="card-title"><span class="emoji">📊</span>内容复盘</h2><button class="btn-add" onclick="openModal('reviewModal')">+ 添加</button></div>
+      <div class="filter-bar">
+        <button class="filter-pill active" onclick="filterReview('all',this)">全部</button>
+        <button class="filter-pill" onclick="filterReview('week',this)">本周</button>
+        <button class="filter-pill" onclick="filterReview('month',this)">本月</button>
+      </div>
+      <div id="reviewList"></div>
+    </div>
+  </div>
+
+  <!-- 样品清单 -->
+  <div class="page" id="page-samples">
+    <div class="card">
+      <div class="card-head"><h2 class="card-title"><span class="emoji">📦</span>样品清单</h2><button class="btn-add" onclick="openModal('sampleModal')">+ 添加</button></div>
+      <div class="filter-bar">
+        <button class="filter-pill active" onclick="filterSample('all',this)">全部</button>
+        <button class="filter-pill" onclick="filterSample('published',this)">已发布</button>
+        <button class="filter-pill" onclick="filterSample('repeat',this)">可反复拍</button>
+        <button class="filter-pill" onclick="filterSample('pending',this)">未完成</button>
+      </div>
+      <div id="sampleList"></div>
+    </div>
+  </div>
+
+  <!-- 发布排期 -->
+  <div class="page" id="page-schedule">
+    <div class="card">
+      <div class="card-head"><h2 class="card-title"><span class="emoji">📅</span>发布排期</h2><button class="btn-add" onclick="openModal('scheduleModal')">+ 添加</button></div>
+      <div id="calendarView"></div>
+      <div id="scheduleList"></div>
+    </div>
+  </div>
+
+  <!-- 每日运动 -->
+  <div class="page" id="page-sport">
+    <div class="card">
+      <div class="card-head"><h2 class="card-title"><span class="emoji">🏃</span>今日运动</h2><button class="btn-add" onclick="openModal('sportModal')">+ 记录</button></div>
+      <div class="sport-grid" id="sportGrid"></div>
+      <div id="sportLog"></div>
+    </div>
+  </div>
+
+  <!-- 备忘录 -->
+  <div class="page" id="page-memo">
+    <div class="card">
+      <div class="card-head"><h2 class="card-title"><span class="emoji">📝</span>备忘录</h2><button class="btn-add" onclick="saveMemo()">💾 保存</button></div>
+      <textarea class="memo-textarea" id="memoContent" placeholder="在这里记录 anything..." style="min-height:400px" onblur="saveMemo()"></textarea>
+    </div>
+  </div>
+</main>
+
+<button class="fab-btn" onclick="quickAdd()">+</button>
+
+<!-- 模态框：任务 -->
+<div class="modal-bg" id="modal-taskModal"><div class="modal-box">
+<div class="modal-top"><div class="modal-title">📋 添加任务</div><button class="modal-x" onclick="closeModal('taskModal')">×</button></div>
+<div class="form-line"><label class="form-label">任务内容</label><input class="form-input" id="taskText" placeholder="例如：每天运动60分钟"></div>
+<div class="form-row"><div class="form-line"><label class="form-label">优先级</label><select class="form-input" id="taskPriority"><option value="high">🔴 重要</option><option value="medium" selected>🟡 一般</option><option value="low">🟢 不急</option></select></div>
+<div class="form-line"><label class="form-label">提醒时间</label><input class="form-input" type="time" id="taskTime"></div></div>
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><input type="checkbox" id="taskDaily" style="width:18px;height:18px"><label style="font-size:13px;font-weight:600">🔄 每日循环任务</label></div>
+<button class="btn-confirm" onclick="submitTask()">✅ 添加</button></div></div>
+
+<!-- 模态框：灵感 -->
+<div class="modal-bg" id="modal-inspirationModal"><div class="modal-box">
+<div class="modal-top"><div class="modal-title">💡 记录灵感</div><button class="modal-x" onclick="closeModal('inspirationModal')">×</button></div>
+<div class="form-line"><label class="form-label">灵感内容</label><textarea class="form-input textarea" id="inspirationText" placeholder="记录想法、创意、拍摄灵感..."></textarea></div>
+<div class="form-line"><label class="form-label">🔗 抖音链接（可选，保存后可点击打开）</label><input class="form-input" id="inspirationLink" placeholder="粘贴抖音视频链接"></div>
+<div class="form-line"><label class="form-label">标签（逗号分隔）</label><input class="form-input" id="inspirationTags" placeholder="例如：拍摄灵感, 好物推荐"></div>
+<button class="btn-confirm" onclick="submitInspiration()">💡 保存</button></div></div>
+
+
+<!-- 模态框：编辑样品 -->
+<div class="modal-bg" id="modal-editSampleModal"><div class="modal-box">
+<div class="modal-top"><div class="modal-title">📦 编辑样品</div><button class="modal-x" onclick="closeModal('editSampleModal')">×</button></div>
+<input type="hidden" id="editSampleId">
+<div class="form-line"><label class="form-label">样品名称</label><input class="form-input" id="editSampleName" readonly style="background:#f5f5f5;color:#999"></div>
+<div class="form-line"><label class="form-label">分类</label><select class="form-input" id="editSampleCat"><option value="pending">📝 未完成</option><option value="repeat">🔄 可反复拍</option><option value="published">✅ 已发布</option></select></div>
+<div class="form-line"><label class="form-label">📝 拍摄备注 / 产品要求</label><textarea class="form-input textarea" id="editSampleNote" placeholder="品牌方要求、拍摄注意事项、产品特点、稿费信息..."></textarea></div>
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><input type="checkbox" id="editSampleHasScript" style="width:18px;height:18px"><label style="font-size:13px;font-weight:600">✅ 已有脚本</label></div>
+<button class="btn-confirm" onclick="saveSampleEdit()">💾 保存</button></div></div>
+<!-- 模态框：样品 -->
+<div class="modal-bg" id="modal-sampleModal"><div class="modal-box">
+<div class="modal-top"><div class="modal-title">📦 添加样品</div><button class="modal-x" onclick="closeModal('sampleModal')">×</button></div>
+<div class="form-line"><label class="form-label">样品名称</label><input class="form-input" id="sampleName" placeholder="例如：冷雾直板夹"></div>
+<div class="form-line"><label class="form-label">分类</label><select class="form-input" id="sampleCat"><option value="pending">未完成</option><option value="published">已发布</option><option value="repeat">可反复拍</option></select></div>
+<div class="form-line"><label class="form-label">备注</label><input class="form-input" id="sampleNote" placeholder="品牌方、进度、脚本状态..."></div>
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><input type="checkbox" id="sampleHasScript" style="width:18px;height:18px"><label style="font-size:13px;font-weight:600">✅ 已有脚本</label></div>
+<button class="btn-confirm" onclick="submitSample()">✅ 添加</button></div></div>
+
+<!-- 模态框：排期 -->
+<div class="modal-bg" id="modal-scheduleModal"><div class="modal-box">
+<div class="modal-top"><div class="modal-title">📅 添加排期</div><button class="modal-x" onclick="closeModal('scheduleModal')">×</button></div>
+<div class="form-line"><label class="form-label">标题</label><input class="form-input" id="scheduleTitle" placeholder="例如：发布护发好物合集"></div>
+<div class="form-line"><label class="form-label">描述</label><input class="form-input" id="scheduleDesc" placeholder="平台、备注..."></div>
+<div class="form-row"><div class="form-line"><label class="form-label">日期</label><input class="form-input" type="date" id="scheduleDate"></div>
+<div class="form-line"><label class="form-label">时间</label><input class="form-input" type="time" id="scheduleTime" value="18:00"></div></div>
+<div class="form-line"><label class="form-label">标记图标</label><select class="form-input" id="scheduleEmoji"><option value="📹">📹 拍摄</option><option value="✂️">✂️ 剪辑</option><option value="📤">📤 发布</option><option value="💬">💬 直播</option><option value="📦">📦 收样</option><option value="🎯">🎯 重要</option><option value="⭐">⭐ 重点</option><option value="💡">💡 创意</option></select></div>
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><input type="checkbox" id="scheduleReminder" checked style="width:18px;height:18px"><label style="font-size:13px;font-weight:600">🔔 开启提醒</label></div>
+<button class="btn-confirm" onclick="submitSchedule()">✅ 添加</button></div></div>
+
+<!-- 模态框：复盘 -->
+<div class="modal-bg" id="modal-reviewModal"><div class="modal-box">
+<div class="modal-top"><div class="modal-title">📊 添加复盘</div><button class="modal-x" onclick="closeModal('reviewModal')">×</button></div>
+<div class="form-line"><label class="form-label">内容标题</label><input class="form-input" id="reviewTitle" placeholder="例如：冷雾直板夹测评"></div>
+<div class="form-line"><label class="form-label">🔗 视频链接</label><input class="form-input" id="reviewLink" placeholder="粘贴视频链接，用于分析优化"></div>
+<div class="form-line"><label class="form-label">日期</label><input class="form-input" type="date" id="reviewDate"></div>
+<div class="form-row-4"><div class="form-line"><label class="form-label">播放</label><input class="form-input" type="number" id="reviewPlays" placeholder="0"></div>
+<div class="form-line"><label class="form-label">点赞</label><input class="form-input" type="number" id="reviewLikes" placeholder="0"></div>
+<div class="form-line"><label class="form-label">评论</label><input class="form-input" type="number" id="reviewComments" placeholder="0"></div>
+<div class="form-line"><label class="form-label">分享</label><input class="form-input" type="number" id="reviewShares" placeholder="0"></div></div>
+<div class="form-line"><label class="form-label">数据分析</label><textarea class="form-input textarea" id="reviewAnalysis" placeholder="哪些做得好？哪些需要改进？"></textarea></div>
+<div class="form-line"><label class="form-label">下次优化建议</label><textarea class="form-input textarea" id="reviewSuggestions" placeholder="具体可行的改进方案..."></textarea></div>
+<button class="btn-confirm" onclick="submitReview()">✅ 添加</button></div></div>
+
+
+<!-- 模态框：运动 -->
+<div class="modal-bg" id="modal-sportModal"><div class="modal-box">
+<div class="modal-top"><div class="modal-title">🏃 记录运动</div><button class="modal-x" onclick="closeModal('sportModal')">×</button></div>
+<div class="form-line"><label class="form-label">运动类型</label><select class="form-input" id="sportType"><option value="跑步">🏃 跑步</option><option value="跳绳">🪢 跳绳</option><option value="瑜伽">🧘 瑜伽</option><option value="健身">🏋️ 健身</option><option value="游泳">🏊 游泳</option><option value="骑行">🚴 骑行</option><option value="散步">🚶 散步</option><option value="跳舞">💃 跳舞</option><option value="普拉提">🤸 普拉提</option><option value="HIIT">⚡ HIIT</option><option value="拉伸">🧘‍♀️ 拉伸</option><option value="其他">✨ 其他</option></select></div>
+<div class="form-line"><label class="form-label">时长（分钟）</label><input class="form-input" type="number" id="sportDuration" placeholder="60" value="60"></div>
+<div class="form-line"><label class="form-label">感受</label><select class="form-input" id="sportFeeling"><option value="great">🔥 超棒</option><option value="good">😊 不错</option><option value="ok">😐 还行</option><option value="tired">😴 累</option></select></div>
+<div class="form-line"><label class="form-label">备注</label><input class="form-input" id="sportNote" placeholder="想说什么..."></div>
+<button class="btn-confirm" onclick="submitSport()">✅ 记录</button></div></div>
+
+<script>
+// ==================== 数据层 ====================
+const STORAGE = 'wyr_v6';
+let D = (() => { try { return JSON.parse(localStorage.getItem(STORAGE)) || def(); } catch { return def(); } })();
+function def() { return {
+  mood:'', note:'', memo:'',
+  tasks:[
+    {id:uid(),text:'每天运动60分钟',done:false,priority:'high',time:'07:00',daily:true},
+    {id:uid(),text:'刷抖音收集好物/种草素材',done:false,priority:'medium',time:'10:00',daily:true},
+    {id:uid(),text:'整理爆款灵感笔记',done:false,priority:'medium',time:'12:00',daily:true},
+    {id:uid(),text:'拍摄好物测评/种草视频',done:false,priority:'high',time:'14:00',daily:true},
+    {id:uid(),text:'剪辑+发布一条视频',done:false,priority:'high',time:'18:00',daily:true},
+    {id:uid(),text:'复盘当日发布数据',done:false,priority:'medium',time:'21:00',daily:true},
+    {id:uid(),text:'规划明天的选题方向',done:false,priority:'low',time:'22:00',daily:true},
+  ],
+  samples:[
+    // 已发布 25个
+    {id:uid(),name:'遮阳帽',cat:'published',note:'',hasScript:false},
+    {id:uid(),name:'袜子',cat:'published',note:'',hasScript:false},
+    {id:uid(),name:'乐程式直板夹PRO',cat:'published',note:'',hasScript:false},
+    {id:uid(),name:'安辛康面膜',cat:'published',note:'',hasScript:false},
+    {id:uid(),name:'安辛康洗面奶',cat:'published',note:'',hasScript:false},
+    {id:uid(),name:'金稻直发梳经典款',cat:'published',note:'',hasScript:false},
+    {id:uid(),name:'珂拉琪眼线液笔',cat:'published',note:'',hasScript:false},
+    {id:uid(),name:'牛仔短裤',cat:'published',note:'',hasScript:false},
+    {id:uid(),name:'假睫毛',cat:'published',note:'',hasScript:false},
+    {id:uid(),name:'艾诗摩尔直板夹',cat:'published',note:'',hasScript:false},
+    {id:uid(),name:'一只柚猫眼一步胶',cat:'published',note:'',hasScript:false},
+    {id:uid(),name:'三穿高跟鞋',cat:'published',note:'',hasScript:false},
+    {id:uid(),name:'萌牙怪兽',cat:'published',note:'',hasScript:false},
+    {id:uid(),name:'一只柚云感胶',cat:'published',note:'',hasScript:false},
+    {id:uid(),name:'安辛康修护霜',cat:'published',note:'',hasScript:false},
+    {id:uid(),name:'品存F8Max头戴式耳机',cat:'published',note:'',hasScript:false},
+    {id:uid(),name:'月儿弯弯洁牙器',cat:'published',note:'600稿费/2条',hasScript:false},
+    {id:uid(),name:'图拉斯小贝壳充电宝',cat:'published',note:'',hasScript:false},
+    {id:uid(),name:'敏敦煌冷雾夹板',cat:'published',note:'',hasScript:false},
+    {id:uid(),name:'kamiya定轴高光美瞳半年抛',cat:'published',note:'',hasScript:false},
+    {id:uid(),name:'一只柚果冻胶',cat:'published',note:'200稿费',hasScript:false},
+    {id:uid(),name:'杏仁色斜肩吊带',cat:'published',note:'',hasScript:false},
+    {id:uid(),name:'极光开结梳',cat:'published',note:'',hasScript:false},
+    {id:uid(),name:'Bio-e澳洲青香蕉液',cat:'published',note:'',hasScript:false},
+    {id:uid(),name:'Sbeauty胸贴',cat:'published',note:'',hasScript:false},
+    // 可反复拍 6个
+    {id:uid(),name:'遮阳帽',cat:'repeat',note:'出单好',hasScript:false},
+    {id:uid(),name:'乐程式直板夹PRO',cat:'repeat',note:'出单好',hasScript:false},
+    {id:uid(),name:'金稻直发梳经典款',cat:'repeat',note:'出单好',hasScript:false},
+    {id:uid(),name:'安辛康面膜',cat:'repeat',note:'出单好',hasScript:false},
+    {id:uid(),name:'安辛康洗面奶',cat:'repeat',note:'出单好',hasScript:false},
+    {id:uid(),name:'安辛康修护霜',cat:'repeat',note:'出单好',hasScript:false},
+    // 未完成 22个
+    {id:uid(),name:'金色高跟鞋',cat:'pending',note:'脚本✅ 3版',hasScript:true},
+    {id:uid(),name:'吊带睡裙',cat:'pending',note:'脚本✅',hasScript:true},
+    {id:uid(),name:'金稻冷风款直发梳',cat:'pending',note:'脚本✅',hasScript:true},
+    {id:uid(),name:'舒胡蕾长裙',cat:'pending',note:'脚本✅',hasScript:true},
+    {id:uid(),name:'裸色凉鞋',cat:'pending',note:'缺脚本',hasScript:false},
+    {id:uid(),name:'增高人字拖',cat:'pending',note:'缺脚本',hasScript:false},
+    {id:uid(),name:'泰国爽身粉',cat:'pending',note:'缺脚本',hasScript:false},
+    {id:uid(),name:'金钱豹披肩',cat:'pending',note:'缺脚本',hasScript:false},
+    {id:uid(),name:'黑白连衣裙',cat:'pending',note:'缺脚本',hasScript:false},
+    {id:uid(),name:'夏日多巴胺穿戴甲',cat:'pending',note:'缺脚本',hasScript:false},
+    {id:uid(),name:'ABKS小熊挂件',cat:'pending',note:'6/14入',hasScript:false},
+    {id:uid(),name:'vodana卷发棒',cat:'pending',note:'7/8入',hasScript:false},
+    {id:uid(),name:'蓝色波点化妆包',cat:'pending',note:'7/9入',hasScript:false},
+    {id:uid(),name:'缎面干发帽',cat:'pending',note:'脚本✅',hasScript:true},
+    {id:uid(),name:'电热睫毛夹',cat:'pending',note:'7/9入',hasScript:false},
+    {id:uid(),name:'柳丝木防晒霜',cat:'pending',note:'7/9入',hasScript:false},
+    {id:uid(),name:'身体素颜霜',cat:'pending',note:'脚本✅',hasScript:true},
+    {id:uid(),name:'狗哥足弓拖鞋',cat:'pending',note:'7/9入',hasScript:false},
+    {id:uid(),name:'珠光星河串珠弹力手链',cat:'pending',note:'7/10入',hasScript:false},
+    {id:uid(),name:'金稻蒸汽直发梳',cat:'pending',note:'7/15入',hasScript:false},
+    {id:uid(),name:'粉色条纹空顶帽',cat:'pending',note:'7/15入',hasScript:false},
+    {id:uid(),name:'4件吊带',cat:'pending',note:'7/15入',hasScript:false},
+  ],
+  reviews:[{
+    id:uid(),date:'2026-07-26',title:'冷雾直板夹测评',link:'',
+    plays:430,likes:38,comments:6,shares:2,
+    analysis:'真人出镜开头停留率不错，产品展示环节可以更详细。',
+    suggestions:'1. 开头用"沙发发质终于有救了"痛点开场\n2. 加入使用前后对比特写\n3. 结尾加入"同款在橱窗"引导',
+  }],
+  inspirations:[
+    {id:uid(),text:'真人出镜+产品特写数据更好，可以多尝试',tags:['拍摄技巧','好物测评'],link:'',date:'2026-07-27'},
+    {id:uid(),text:'"沙发真爱"痛点标签效果好，延伸到其他发质问题',tags:['选题方向','护发'],link:'',date:'2026-07-26'},
+  ],
+  schedules:[
+    {id:uid(),title:'发布护发好物合集',desc:'抖音+小红书',date:'2026-07-28',time:'18:00',emoji:'📤',remind:true,status:'pending'},
+    {id:uid(),title:'好物直播专场',desc:'抖音直播',date:'2026-07-29',time:'20:00',emoji:'💬',remind:true,status:'pending'},
+  ],
+  sports:[],
+  hotVideos:[],hotTime:'',
+};}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).substr(2,6)}
+function save(){localStorage.setItem(STORAGE,JSON.stringify(D))}
+
+// ==================== 全局状态 ====================
+let curPage='home',curTaskFilter='all',curHotFilter='all',curSampleFilter='all',curReviewFilter='all';
+
+// ==================== 初始化 ====================
+document.addEventListener('DOMContentLoaded',()=>{
+  initDate();
+  renderAll();
+  loadEncourage();
+  loadNews();
+  loadInvest();
+  refreshHot();
+  checkDailyReset();
+  setInterval(checkDailyReset,60000);
+  setInterval(autoRefreshHot,3600000);
+  setInterval(loadEncourage,1800000);
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('./sw.js?v=6').catch(()=>{});
+  }
+});
+
+function initDate(){
+  let d=new Date(),w=['日','一','二','三','四','五','六'];
+  document.getElementById('headerDate').textContent=d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日 星期'+w[d.getDay()];
+}
+
+// ==================== 导航 ====================
+function toggleNav(){
+  document.getElementById('navSidebar').classList.toggle('open');
+  document.getElementById('navOverlay').classList.toggle('show');
+}
+function goPage(p){
+  curPage=p;
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  let t=document.getElementById('page-'+p);if(t)t.classList.add('active');
+  document.querySelectorAll('.nav-i').forEach(x=>x.classList.remove('active'));
+  let n=document.querySelector('[data-page="'+p+'"]');if(n)n.classList.add('active');
+  let titles={home:'主页',tasks:'每日计划',inspire:'选题灵感',hot:'爆款热点',review:'内容复盘',samples:'样品清单',schedule:'发布排期',sport:'每日运动',memo:'备忘录'};
+  document.getElementById('headerTitle').textContent=titles[p]||p;
+  renderPage(p);
+  if(window.innerWidth<=768)toggleNav();
+}
+function renderPage(p){
+  switch(p){
+    case 'home':renderHome();break;
+    case 'tasks':renderTasks();break;
+    case 'hot':renderHot();break;
+    case 'review':renderReviews();break;
+    case 'inspire':renderInspirations();break;
+        case 'samples':renderSamples();break;
+    case 'schedule':renderCalendar();renderScheduleList();break;
+    case 'sport':renderSport();break;
+    case 'memo':renderMemo();break;
+  }
+}
+function renderAll(){renderHome();}
+
+// ==================== 主页 ====================
+async function loadEncourage(){
+  try{let r=await fetch('/api/encourage');if(r.ok){let d=await r.json();document.getElementById('encourageText').textContent=d.text;document.getElementById('encourageDate').textContent=d.date;return}}
+  catch(e){}
+  let tips=['今天也要加油呀 ✨','慢慢来比较快 🌱','你比想象中更厉害 💪','今天也是闪闪发光的一天 ⭐','不要内耗，干就完了！⚡'];
+  document.getElementById('encourageText').textContent=tips[Math.floor(Math.random()*tips.length)];
+  document.getElementById('encourageDate').textContent=new Date().toLocaleDateString('zh-CN');
+}
+
+async function loadNews(){
+  let news=[
+    '🔥 今日消费热点：夏日清凉好物搜索量上涨230%',
+    '📱 抖音618好物节预热，美妆个护品类流量激增',
+    '👗 多巴胺穿搭持续火爆，相关话题播放量破50亿',
+    '💄 护发品类内容互动率环比增长45%',
+    '🎬 真实测评类内容完播率高于种草类20%',
+    '🛒 直播带货新规：达人需提前报备合作品牌',
+  ];
+  document.getElementById('newsContent').textContent=news[Math.floor(Math.random()*news.length)];
+}
+
+async function loadInvest(){
+  try{let r=await fetch('/api/invest');if(r.ok){let d=await r.json();document.getElementById('investTitle').textContent=d.title;document.getElementById('investContent').textContent=d.content;return}}
+  catch(e){}
+  document.getElementById('investTitle').textContent='什么是定投？';
+  document.getElementById('investContent').textContent='定期定额投资，每月固定买入。不管涨跌都买，长期平摊成本。巴菲特推荐普通人定投指数基金。新手建议从每月500-1000元开始。';
+}
+
+function renderHome(){
+  document.querySelectorAll('#moodPicker .mood-face').forEach(b=>b.classList.toggle('on',b.dataset.m===D.mood));
+  document.getElementById('statusNote').value=D.note||'';
+  // 待办速览
+  let tasks=D.tasks.filter(t=>!t.done).slice(0,5);
+  let el=document.getElementById('homeTaskPreview');
+  el.innerHTML=tasks.length?tasks.map(t=>'<div class="task-item" onclick="goPage(\'tasks\')" style="cursor:pointer"><div class="task-check"></div><div class="task-text">'+esc(t.text)+'</div><span class="tag-pill '+(t.priority==='high'?'tag-red':t.priority==='medium'?'tag-orange':'tag-green')+'">'+(t.priority==='high'?'重要':t.priority==='medium'?'一般':'不急')+'</span></div>').join(''):'<div class="empty-state"><div class="empty-emoji">✅</div><div class="empty-text">全部完成！太棒了~</div></div>';
+}
+
+// ==================== 任务 ====================
+function taskItem(t){
+  let pm={high:'tag-red',medium:'tag-orange',low:'tag-green'},pl={high:'重要',medium:'一般',low:'不急'};
+  return '<div class="task-item '+(t.done?'done':'')+'"><div class="task-check '+(t.done?'checked':'')+'" onclick="toggleTask(\''+t.id+'\')"></div><div class="task-text">'+esc(t.text)+'</div><div class="task-meta">'+(t.time?'<span class="task-time">⏰ '+t.time+'</span>':'')+'<span class="tag-pill '+pm[t.priority]+'">'+pl[t.priority]+'</span>'+(t.daily?'<span style="font-size:10px;color:var(--y)">🔄</span>':'')+'</div><button class="task-del" onclick="deleteTask(\''+t.id+'\')">🗑</button></div>';
+}
+function renderTasks(){
+  let el=document.getElementById('taskList'),tasks=D.tasks;
+  if(curTaskFilter==='pending')tasks=tasks.filter(t=>!t.done);
+  if(curTaskFilter==='done')tasks=tasks.filter(t=>t.done);
+  tasks=[...tasks].sort((a,b)=>a.done!==b.done?a.done?1:-1:0);
+  el.innerHTML=tasks.length?tasks.map(t=>taskItem(t)).join(''):'<div class="empty-state"><div class="empty-emoji">✅</div><div class="empty-text">没有任务，点击右上角添加</div></div>';
+  if(curPage==='home')renderHome();
+}
+function toggleTask(id){let t=D.tasks.find(x=>x.id===id);if(t){t.done=!t.done;save();renderTasks()}}
+function deleteTask(id){if(!confirm('确定删除？'))return;D.tasks=D.tasks.filter(t=>t.id!==id);save();renderTasks()}
+function filterTasks(f,btn){curTaskFilter=f;document.querySelectorAll('#page-tasks .filter-pill').forEach(c=>c.classList.remove('active'));if(btn)btn.classList.add('active');renderTasks()}
+function setMood(m){D.mood=D.mood===m?'':m;save();document.querySelectorAll('#moodPicker .mood-face').forEach(b=>b.classList.toggle('on',b.dataset.m===D.mood))}
+function saveStatusNote(){D.note=document.getElementById('statusNote').value;save()}
+function submitTask(){
+  let t=document.getElementById('taskText').value;if(!t.trim())return toast('请输入内容');
+  D.tasks.push({id:uid(),text:t.trim(),done:false,priority:document.getElementById('taskPriority').value,time:document.getElementById('taskTime').value,daily:document.getElementById('taskDaily').checked});
+  save();renderTasks();document.getElementById('taskText').value='';document.getElementById('taskTime').value='';document.getElementById('taskDaily').checked=false;closeModal('taskModal');toast('✅ 已添加');
+}
+
+// ==================== 爆款 ====================
+function hotVideoCoverBg(tags){
+  var colors={'好物':['#FF6B6B','#FFE0B2'],'穿搭':['#A18CD1','#FFD1FF'],'护发':['#FF9A9E','#FAD0C4'],'生活':['#F6D365','#FDA085'],'成长':['#84FAB0','#8FD3F4'],'搞钱':['#FCCB90','#D57EEB'],'测评':['#667eea','#764ba2'],'种草':['#FF6B6B','#FECFEF'],'女生':['#E2B0FF','#9F44FF'],'职场':['#FFECD2','#FCB69F'],'vlog':['#96FBC4','#F9F586'],'副业':['#F6D365','#FDA085'],'心理':['#A1C4FD','#C2E9FB'],'治愈':['#FF9A9E','#FAD0C4'],'情绪':['#C9A0FF','#E2B0FF'],'理财':['#FCCB90','#D57EEB']};
+  var t=(tags||[])[0]||'好物';var c=colors[t]||['#667eea','#764ba2'];
+  return 'linear-gradient(135deg,'+c[0]+','+c[1]+')';
+}
+function hotItem(v,i){
+  var tagsHtml=(v.tags||[]).map(function(t){return '<span class="hot-tag">'+esc(t)+'</span>';}).join('');
+  var bg=hotVideoCoverBg(v.tags);
+  var vid=v.videoUrl||'';
+  var dur=['00:18','00:22','00:15','00:25','00:20','00:16','00:19','00:21','00:17','00:23'][i%10];
+  var idx=i;
+  return '<div class="hot-item"><div class="hot-cover" onclick="openVideoModal(\''+escAttr(vid)+'\',\''+escAttr(v.title)+'\',\''+escAttr(v.author)+'\')" style="background:'+bg+'"><div class="hot-play">▶️</div><div class="hot-rank">TOP '+(i+1)+'</div>'+(v.match?'<div class="hot-match">🎯 '+v.match+'</div>':'')+'<div class="hot-cover-overlay"><div class="hot-cover-title">'+esc(v.title)+'</div><div class="hot-cover-duration">'+dur+'</div></div></div><div class="hot-body"><div class="hot-author">@'+esc(v.author)+' · '+esc(v.tag||'热门')+'</div><div class="hot-stats">👍 '+fmt(v.likes)+' &nbsp;💬 '+fmt(v.comments)+' &nbsp;🔗 '+fmt(v.shares)+'</div><div class="hot-tags">'+tagsHtml+'</div><div class="hot-style">🎬 '+esc(v.style)+'</div><div class="hot-actions"><button class="hot-btn hot-btn-main" onclick="saveInspire(\''+escAttr(v.title)+'\',\''+escAttr(vid)+'\')">💡 灵感</button><button class="hot-btn hot-btn-light" onclick="openVideoModal(\''+escAttr(vid)+'\',\''+escAttr(v.title)+'\',\''+escAttr(v.author)+'\')">▶️ 观看</button></div></div></div>';
+}
+function renderHot(){
+  let el=document.getElementById('hotVideoList'),vids=D.hotVideos.length?D.hotVideos:[];
+  if(!vids.length){el.innerHTML='<div class="empty-state"><div class="empty-emoji">🔄</div><div class="empty-text">点击刷新获取最新爆款</div></div>';return}
+  if(curHotFilter!=='all')vids=vids.filter(v=>JSON.stringify(v).includes(curHotFilter));
+  el.innerHTML=vids.length?vids.map(function(v,i){return hotItem(v,i);}).join(''):'<div class="empty-state"><div class="empty-emoji">🔍</div><div class="empty-text">没有匹配结果</div></div>';
+}
+function filterHot(f,btn){curHotFilter=f;document.querySelectorAll('#page-hot .filter-pill').forEach(c=>c.classList.remove('active'));if(btn)btn.classList.add('active');renderHot()}
+function searchHot(){
+  let q=document.getElementById('hotSearchInput').value.trim().toLowerCase(),el=document.getElementById('hotVideoList'),vids=D.hotVideos.length?D.hotVideos:[];
+  if(q)vids=vids.filter(v=>JSON.stringify(v).toLowerCase().includes(q));
+  el.innerHTML=vids.length?vids.map(function(v,i){return hotItem(v,i);}).join(''):'<div class="empty-state"><div class="empty-emoji">🔍</div><div class="empty-text">没有匹配结果</div></div>';
+}
+async function refreshHot(){
+  let t=document.getElementById('hotUpdateTime');if(t)t.textContent='⏳ 刷新中...';
+  try{let r=await fetch('/api/hot?t='+Date.now());if(r.ok){let d=await r.json();D.hotVideos=d.videos||[];D.hotTime=d.updateTime||''}}
+  catch(e){console.log('API error, using cache')}
+  save();if(t)t.innerHTML='<span>✅</span> 最近更新：'+(D.hotTime||'--');renderHot();toast('🔥 已更新！');
+}
+function autoRefreshHot(){let n=new Date();if(n.getHours()===9&&n.getMinutes()<5)refreshHot()}
+
+// ==================== 灵感 ====================
+function renderInspirations(){
+  let el=document.getElementById('inspirationList');
+  el.innerHTML=D.inspirations.length?[...D.inspirations].reverse().map(i=>'<div class="inspire-item"><div class="inspire-emoji">💡</div><div style="flex:1"><div class="inspire-text">'+esc(i.text)+'</div>'+(i.link?'<a class="inspire-link" onclick="openLink(\''+escAttr(i.link)+'\')">🔗 打开抖音视频</a>':'')+'<div class="inspire-tags">'+(i.tags||[]).map(t=>'<span class="inspire-tag">'+esc(t)+'</span>').join('')+'</div><div style="font-size:10px;color:var(--tl);margin-top:4px">'+i.date+'</div></div><button class="task-del" onclick="delInspire(\''+i.id+'\')">🗑</button></div>').join(''):'<div class="empty-state"><div class="empty-emoji">💡</div><div class="empty-text">记录你的灵感吧~支持粘贴抖音链接哦</div></div>';
+}
+function saveInspire(text,url){D.inspirations.push({id:uid(),text,link:url||'',tags:['来自爆款'],date:new Date().toISOString().slice(0,10)});save();toast('💡 已保存')}
+function delInspire(id){if(!confirm('确定删除？'))return;D.inspirations=D.inspirations.filter(i=>i.id!==id);save();renderInspirations()}
+function submitInspiration(){
+  let t=document.getElementById('inspirationText').value;if(!t.trim())return toast('请输入内容');
+  D.inspirations.push({id:uid(),text:t.trim(),link:document.getElementById('inspirationLink').value.trim(),tags:document.getElementById('inspirationTags').value.split(/[,，]/).map(x=>x.trim()).filter(Boolean),date:new Date().toISOString().slice(0,10)});
+  save();renderInspirations();document.getElementById('inspirationText').value='';document.getElementById('inspirationLink').value='';document.getElementById('inspirationTags').value='';closeModal('inspirationModal');toast('💡 已记录');
+}
+
+// ==================== 复盘 ====================
+function renderReviews(){
+  let el=document.getElementById('reviewList'),revs=D.reviews;
+  if(curReviewFilter==='week')revs=revs.filter(r=>new Date(r.date)>=new Date(Date.now()-7*86400000));
+  if(curReviewFilter==='month')revs=revs.filter(r=>new Date(r.date)>=new Date(Date.now()-30*86400000));
+  el.innerHTML=revs.length?[...revs].reverse().map(r=>'<div class="review-item"><div class="review-title">'+esc(r.title)+'</div><div class="review-date">📅 '+r.date+(r.link?' · <a style="color:var(--blue);cursor:pointer" onclick="openLink(\''+escAttr(r.link)+'\')">🔗 视频链接</a>':'')+'</div><div class="review-metrics"><div class="review-metric"><div class="review-metric-val">'+fmt(r.plays)+'</div><div class="review-metric-label">播放</div></div><div class="review-metric"><div class="review-metric-val">'+fmt(r.likes)+'</div><div class="review-metric-label">点赞</div></div><div class="review-metric"><div class="review-metric-val">'+r.comments+'</div><div class="review-metric-label">评论</div></div><div class="review-metric"><div class="review-metric-val">'+r.shares+'</div><div class="review-metric-label">分享</div></div></div><div class="review-analysis">📊 分析：'+esc(r.analysis||'暂无')+'</div><div class="review-suggest">💡 建议：'+esc(r.suggestions||'暂无')+'</div><button class="task-del" style="float:right;margin-top:8px" onclick="delReview(\''+r.id+'\')">🗑</button></div>').join(''):'<div class="empty-state"><div class="empty-emoji">📊</div><div class="empty-text">还没有复盘记录</div></div>';
+}
+function filterReview(f,btn){curReviewFilter=f;document.querySelectorAll('#page-review .filter-pill').forEach(c=>c.classList.remove('active'));if(btn)btn.classList.add('active');renderReviews()}
+function delReview(id){if(!confirm('确定删除？'))return;D.reviews=D.reviews.filter(r=>r.id!==id);save();renderReviews()}
+function submitReview(){
+  let title=document.getElementById('reviewTitle').value;if(!title.trim())return toast('请输入标题');
+  let plays=+document.getElementById('reviewPlays').value||0,likes=+document.getElementById('reviewLikes').value||0,comments=+document.getElementById('reviewComments').value||0,shares=+document.getElementById('reviewShares').value||0;
+  // AI 分析建议
+  let analysis=document.getElementById('reviewAnalysis').value||autoAnalyze(plays,likes,comments,shares);
+  let suggestions=document.getElementById('reviewSuggestions').value||autoSuggest(plays,likes,comments);
+  D.reviews.push({id:uid(),title:title.trim(),link:document.getElementById('reviewLink').value.trim(),date:document.getElementById('reviewDate').value||new Date().toISOString().slice(0,10),plays,likes,comments,shares,analysis,suggestions});
+  save();renderReviews();['reviewTitle','reviewLink','reviewDate','reviewPlays','reviewLikes','reviewComments','reviewShares','reviewAnalysis','reviewSuggestions'].forEach(id=>document.getElementById(id).value='');closeModal('reviewModal');toast('📊 已添加');
+}
+function autoAnalyze(plays,likes,comments,shares){
+  let rate=plays>0?(likes/plays*100).toFixed(1):'0';let engage=plays>0?((likes+comments+shares)/plays*100).toFixed(1):'0';
+  return '点赞率：'+rate+'%，互动率：'+engage+'%。'+(parseFloat(rate)>3?'互动数据表现不错！':parseFloat(rate)>1?'互动率中等，可以优化开头留人。':'互动率偏低，建议优化内容吸引力。');
+}
+function autoSuggest(plays,likes,comments){
+  return '1. 开头3秒用痛点或好奇心钩子\n2. 真人出镜增加信任感\n3. 结尾引导点赞+关注+橱窗';
+}
+
+// ==================== 样品 ====================
+function renderSamples(){
+  let el=document.getElementById('sampleList'),samples=D.samples;
+  if(curSampleFilter!=='all')samples=samples.filter(s=>s.cat===curSampleFilter);
+  let cats={published:{title:'✅ 已发布',badge:'badge-done',label:'已发布',count:0},repeat:{title:'🔄 可反复拍·出单好',badge:'badge-repeat',label:'反复拍',count:0},pending:{title:'📝 未完成',badge:'badge-pending',label:'未完成',count:0}};
+  if(curSampleFilter==='all'){
+    let html='';
+    for(let [key,cat] of Object.entries(cats)){
+      let items=samples.filter(s=>s.cat===key);
+      cat.count=items.length;
+      html+='<div class="sample-section"><div class="sample-section-title">'+cat.title+' <span class="count">('+items.length+'个)</span></div>';
+      html+=items.length?items.map(s=>sampleRow(s)).join(''):'<div class="empty-state" style="padding:10px"><div class="empty-text">暂无</div></div>';
+      html+='</div>';
+    }
+    el.innerHTML=html;
+  } else {
+    el.innerHTML=samples.length?samples.map(s=>sampleRow(s)).join(''):'<div class="empty-state"><div class="empty-emoji">📦</div><div class="empty-text">暂无</div></div>';
+  }
+}
+function sampleRow(s){
+  var b=s.cat==='published'?'<span class="sample-badge badge-done">已发布</span>':s.cat==='repeat'?'<span class="sample-badge badge-repeat">反复拍</span>':'<span class="sample-badge badge-pending">未完成</span>';
+  var scriptTag=s.hasScript?' <span class="sample-badge badge-script">脚本✅</span>':'';
+  var dotClass=s.cat==='published'?'done':s.cat==='repeat'?'progress':'';
+  var noteHtml=s.note?'<div class="sample-note">'+esc(s.note)+'</div>':'';
+  return '<div class="sample-item" onclick="editSample(\''+s.id+'\')"><div class="sample-dot '+dotClass+'"></div><div class="sample-info"><div class="sample-name">'+esc(s.name)+scriptTag+'</div>'+noteHtml+'</div>'+b+'<button class="sample-note-btn" onclick="event.stopPropagation();quickNoteSample(\''+s.id+'\')" title="添加备注">📝</button><button class="task-del" onclick="event.stopPropagation();delSample(\''+s.id+'\')">🗑</button></div>';
+}
+function editSample(id){
+  var s=D.samples.find(function(x){return x.id===id;});
+  if(!s)return;
+  document.getElementById('editSampleId').value=s.id;
+  document.getElementById('editSampleName').value=s.name;
+  document.getElementById('editSampleCat').value=s.cat;
+  document.getElementById('editSampleNote').value=s.note||'';
+  document.getElementById('editSampleHasScript').checked=s.hasScript||false;
+  openModal('editSampleModal');
+}
+function saveSampleEdit(){
+  var id=document.getElementById('editSampleId').value;
+  var s=D.samples.find(function(x){return x.id===id;});
+  if(!s)return;
+  s.cat=document.getElementById('editSampleCat').value;
+  s.note=document.getElementById('editSampleNote').value;
+  s.hasScript=document.getElementById('editSampleHasScript').checked;
+  save();renderSamples();closeModal('editSampleModal');toast('✅ 已保存');
+}
+function quickNoteSample(id){
+  var s=D.samples.find(function(x){return x.id===id;});
+  if(!s)return;
+  var note=prompt('添加备注 / 拍摄要求：',s.note||'');
+  if(note!==null){s.note=note;save();renderSamples();toast('📝 备注已保存');}
+}
+function delSample(id){if(!confirm('确定删除？'))return;D.samples=D.samples.filter(s=>s.id!==id);save();renderSamples()}
+function filterSample(f,btn){curSampleFilter=f;document.querySelectorAll('#page-samples .filter-pill').forEach(c=>c.classList.remove('active'));if(btn)btn.classList.add('active');renderSamples()}
+function submitSample(){
+  let n=document.getElementById('sampleName').value;if(!n.trim())return toast('请输入名称');
+  D.samples.push({id:uid(),name:n.trim(),cat:document.getElementById('sampleCat').value,note:document.getElementById('sampleNote').value,hasScript:document.getElementById('sampleHasScript').checked});
+  save();renderSamples();document.getElementById('sampleName').value='';document.getElementById('sampleNote').value='';document.getElementById('sampleHasScript').checked=false;closeModal('sampleModal');toast('📦 已添加');
+}
+
+// ==================== 日历排期 ====================
+function renderCalendar(){
+  let now=new Date(),y=now.getFullYear(),m=now.getMonth(),today=now.getDate();
+  let firstDay=new Date(y,m,1).getDay(),daysInMonth=new Date(y,m+1,0).getDate();
+  let el=document.getElementById('calendarView');
+  let html='<div class="calendar"><div class="cal-day-header">日</div><div class="cal-day-header">一</div><div class="cal-day-header">二</div><div class="cal-day-header">三</div><div class="cal-day-header">四</div><div class="cal-day-header">五</div><div class="cal-day-header">六</div>';
+  for(let i=0;i<firstDay;i++)html+='<div class="cal-day other-month"></div>';
+  for(let d=1;d<=daysInMonth;d++){
+    let ds=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    let events=D.schedules.filter(s=>s.date===ds);
+    let cls='cal-day'+(d===today?' today':'');
+    let emoji='';
+    if(events.length>0){cls+=' has-event';emoji=events[0].emoji||'📅'}
+    html+='<div class="'+cls+'" onclick="showDaySchedule(\''+ds+'\')">'+d+(emoji?'<span class="cal-emoji">'+emoji+'</span>':'')+'</div>';
+  }
+  html+='</div>';
+  el.innerHTML=html;
+}
+function showDaySchedule(ds){
+  let events=D.schedules.filter(s=>s.date===ds);
+  if(events.length===0){toast('当天没有排期');return}
+  let el=document.getElementById('scheduleList');
+  el.innerHTML='<div style="margin-bottom:8px;font-weight:700;color:var(--yd)">📅 '+ds+' 排期</div>'+events.map(s=>schRow(s)).join('');
+}
+function renderScheduleList(){renderCalendar();showDaySchedule(new Date().toISOString().slice(0,10))}
+function schRow(s){
+  return '<div class="schedule-item" onclick="cycleSchedule(\''+s.id+'\')" style="position:relative"><div class="schedule-time"><div class="schedule-time-h">'+s.time+'</div><div class="schedule-time-d">'+s.date.slice(5)+'</div></div><div class="schedule-info"><div class="schedule-title">'+(s.emoji||'📅')+' '+esc(s.title)+'</div>'+(s.desc?'<div class="schedule-desc">'+esc(s.desc)+'</div>':'')+(s.remind?'<div class="schedule-remind">🔔 提醒</div>':'')+'</div><div class="schedule-dot '+(s.status==='done'?'dot-done':s.status==='missed'?'dot-missed':'dot-pending')+'"></div><button class="task-del" onclick="event.stopPropagation();delSchedule(\''+s.id+'\')">🗑</button></div>';
+}
+function cycleSchedule(id){let s=D.schedules.find(x=>x.id===id);if(s){let o=['pending','done','missed'];s.status=o[(o.indexOf(s.status)+1)%3];save();renderCalendar();renderScheduleList()}}
+function delSchedule(id){if(!confirm('确定删除？'))return;D.schedules=D.schedules.filter(s=>s.id!==id);save();renderCalendar();renderScheduleList()}
+function submitSchedule(){
+  let t=document.getElementById('scheduleTitle').value,d=document.getElementById('scheduleDate').value;
+  if(!t.trim()||!d)return toast('请填写标题和日期');
+  D.schedules.push({id:uid(),title:t.trim(),desc:document.getElementById('scheduleDesc').value,date:d,time:document.getElementById('scheduleTime').value||'18:00',emoji:document.getElementById('scheduleEmoji').value,remind:document.getElementById('scheduleReminder').checked,status:'pending'});
+  save();renderCalendar();renderScheduleList();document.getElementById('scheduleTitle').value='';document.getElementById('scheduleDesc').value='';closeModal('scheduleModal');toast('📅 已添加');
+}
+
+// ==================== 运动 ====================
+function renderSport(){
+  let sports=['🏃 跑步','🪢 跳绳','🧘 瑜伽','🏋️ 健身','🏊 游泳','🚴 骑行','🚶 散步','💃 跳舞','🤸 普拉提','⚡ HIIT','🧘‍♀️ 拉伸'];
+  let today=new Date().toISOString().slice(0,10);
+  let todaySports=D.sports.filter(s=>s.date===today);
+  let grid=document.getElementById('sportGrid');
+  grid.innerHTML=sports.map(sp=>{
+    let name=sp.split(' ')[1];let emoji=sp.split(' ')[0];
+    let done=todaySports.find(s=>s.type===name);
+    return '<div class="sport-item'+(done?' on':'')+'" onclick="quickSport(\''+name+'\')"><span class="sport-emoji">'+emoji+'</span><span class="sport-name">'+name+'</span>'+(done?'<span class="sport-status">✅ '+done.duration+'min</span>':'')+'</div>';
+  }).join('');
+  // 运动日志
+  let log=document.getElementById('sportLog');
+  let recent=[...D.sports].reverse().slice(0,10);
+  log.innerHTML=recent.length?'<div style="margin-top:12px"><div style="font-weight:700;margin-bottom:8px;color:var(--yd)">📋 最近记录</div>'+recent.map(s=>{
+    let feel={great:'🔥超棒',good:'😊不错',ok:'😐还行',tired:'😴累'};
+    return '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--sb);font-size:13px"><span style="font-weight:600">'+s.date.slice(5)+'</span> <span>'+s.type+'</span> <span style="color:var(--yd);font-weight:600">'+s.duration+'min</span> <span>'+feel[s.feeling]+'</span>'+(s.note?'<span style="color:var(--tl);font-size:11px">'+esc(s.note)+'</span>':'')+'<button class="task-del" onclick="delSport(\''+s.id+'\')">🗑</button></div>';
+  }).join('')+'</div>':'';
+}
+function quickSport(type){
+  document.getElementById('sportType').value=type;
+  openModal('sportModal');
+}
+function submitSport(){
+  let type=document.getElementById('sportType').value,dur=+document.getElementById('sportDuration').value||60;
+  D.sports.push({id:uid(),type,duration:dur,feeling:document.getElementById('sportFeeling').value,note:document.getElementById('sportNote').value,date:new Date().toISOString().slice(0,10)});
+  save();renderSport();closeModal('sportModal');toast('🏃 运动已记录！');
+}
+function delSport(id){if(!confirm('确定删除？'))return;D.sports=D.sports.filter(s=>s.id!==id);save();renderSport()}
+
+// ==================== 备忘录 ====================
+function renderMemo(){document.getElementById('memoContent').value=D.memo||''}
+function saveMemo(){D.memo=document.getElementById('memoContent').value;save();toast('💾 已保存')}
+
+// ==================== 模态框 ====================
+function openModal(id){document.getElementById('modal-'+id).classList.add('show')}
+function closeModal(id){document.getElementById('modal-'+id).classList.remove('show');document.getElementById('extractResult').style.display='none'}
+
+// ==================== 快捷添加 ====================
+function quickAdd(){
+  let m={home:'taskModal',tasks:'taskModal',inspire:'inspirationModal',hot:'inspirationModal',review:'reviewModal',samples:'sampleModal',schedule:'scheduleModal',sport:'sportModal',memo:'taskModal'};
+  openModal(m[curPage]||'taskModal');
+}
+
+// ==================== 每日重置 ====================
+function checkDailyReset(){
+  let today=new Date().toISOString().slice(0,10),last=localStorage.getItem('wyr_reset_v6');
+  if(last!==today){D.tasks.forEach(t=>{if(t.daily)t.done=false});save();localStorage.setItem('wyr_reset_v6',today);if(curPage==='tasks'||curPage==='home')renderTasks()}
+}
+
+// ==================== 导入导出 ====================
+function exportData(){
+  let b=new Blob([JSON.stringify(D,null,2)],{type:'application/json'});
+  let a=document.createElement('a');a.href=URL.createObjectURL(b);
+  a.download='yiran-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();
+  URL.revokeObjectURL(a.href);toast('📤 已导出');
+}
+function importData(e){
+  let f=e.target.files[0];if(!f)return;
+  let r=new FileReader();
+  r.onload=ev=>{try{let d=JSON.parse(ev.target.result);if(confirm('确认导入？当前数据将被覆盖！')){D=d;save();renderAll();toast('📥 已恢复')}}catch(e){toast('❌ 格式错误')}};
+  r.readAsText(f);
+}
+
+// ==================== 工具函数 ====================
+function fmt(n){return n>=10000?(n/10000).toFixed(1)+'万':n>=1000?(n/1000).toFixed(1)+'k':String(n)}
+function esc(s){let d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function escAttr(s){return (s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;')}
+function openLink(url){if(!url)return toast('暂无链接');window.open(url,'_blank')}
+function toast(msg){
+  let t=document.getElementById('toast');
+  if(!t){t=document.createElement('div');t.id='toast';t.className='toast';document.body.appendChild(t)}
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2000);
+}
+// ==================== 视频弹窗 ====================
+function openVideoModal(url, title, author){
+  var modal=document.getElementById('videoModal');
+  modal.dataset.url=url;
+  modal.dataset.title=title;
+  modal.dataset.author=author;
+  document.getElementById('videoModalTitle').textContent=title;
+  document.getElementById('videoModalAuthor').textContent='@'+author;
+  document.getElementById('videoModalInspireBtn').onclick=function(){saveInspire(title,url);closeVideoModal();};
+  
+  // 内嵌视频播放（用抖音视频页面iframe）
+  var player=document.getElementById('videoPlayer');
+  player.innerHTML='<div style="background:#000;display:flex;align-items:center;justify-content:center;height:560px"><div style="text-align:center;color:#fff"><div style="font-size:48px;margin-bottom:16px">🎬</div><div style="font-size:16px;font-weight:700;margin-bottom:8px">'+esc(title).substring(0,30)+'</div><div style="font-size:13px;opacity:.7;margin-bottom:20px">点击下方按钮在抖音中观看完整视频</div><button onclick="window.open(\''+escAttr(url)+'\',\'_blank\')" style="padding:12px 28px;background:linear-gradient(135deg,#FE2C55,#FF4D6A);border:none;border-radius:24px;color:#fff;font-size:15px;font-weight:700;cursor:pointer">📱 在抖音中打开</button></div></div>';
+  modal.classList.add('show');
+  document.body.style.overflow='hidden';
+}
+function closeVideoModal(e){
+  if(e&&e.target!==document.getElementById('videoModal'))return;
+  document.getElementById('videoModal').classList.remove('show');
+  document.body.style.overflow='';
+  document.getElementById('videoPlayer').innerHTML='';
+}
+</script>
+
+<!-- 视频播放弹窗 -->
+<div class="video-modal" id="videoModal" onclick="closeVideoModal(event)">
+  <button class="video-modal-close" onclick="closeVideoModal()">×</button>
+  <div class="video-modal-content" onclick="event.stopPropagation()">
+    <div id="videoPlayer"></div>
+  </div>
+  <div class="video-modal-info">
+    <div class="vtitle" id="videoModalTitle"></div>
+    <div class="vauthor" id="videoModalAuthor"></div>
+  </div>
+  <div class="video-modal-actions">
+    <button class="vm-btn vm-btn-light" onclick="window.open(document.getElementById('videoModal').dataset.url,'_blank')">🔗 在抖音打开</button>
+    <button class="vm-btn vm-btn-main" id="videoModalInspireBtn">💡 保存灵感</button>
+    
+  </div>
+</div>
+</body>
+</html>
