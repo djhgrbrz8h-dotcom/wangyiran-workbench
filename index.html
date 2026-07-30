@@ -4342,6 +4342,15 @@ function setupSwipe() {
 
 // ==================== STARTUP ====================
 document.addEventListener('DOMContentLoaded', init);
+
+// 强制更新 Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(regs => {
+    regs.forEach(r => r.unregister());
+  }).then(() => {
+    navigator.serviceWorker.register('/sw.js?v=12');
+  });
+}
 </script>
 </body>
 </html>
