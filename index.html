@@ -303,9 +303,11 @@ body{
   position:fixed;top:0;left:0;right:0;bottom:0;z-index:500;
   padding-bottom:var(--safe-bottom);
   background-color:#FFE8F0;
-  background-image:radial-gradient(circle, #FFFFFF 4px, transparent 4px);
-  background-size:24px 24px;
-  background-size:cover;background-position:center;
+  background-image:
+    radial-gradient(circle, #FFFFFF 4px, transparent 4px),
+    linear-gradient(to top, #FFFFFF 0%, #FFF5F8 25%, #FFE0EC 55%, #FFD0E0 100%);
+  background-size:24px 24px, 100% 100%;
+  background-position:center;
   display:flex;align-items:center;justify-content:center;
   transition:var(--transition);
 }
