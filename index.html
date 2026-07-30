@@ -2140,7 +2140,16 @@ function viewSampleScripts(sampleId) {
 }
 
 function showAddTaskModal() {
-  const sampleOptions = store.samples.map(s => '<option value="' + escAttr(s.id) + '">' + esc(s.name) + ' (' + (s.status === 'published' ? '已发布' : s.status === 'repeatable' ? '可反复拍' : '未完成') + ')</option>').join('');
+  // 排序：未完成优先，按deadline从近到远（急到缓），已发布排最后
+  const sortedSamples = [...store.samples].sort((a, b) => {
+    const statusOrder = { pending: 0, repeatable: 1, published: 2 };
+    const sa = statusOrder[a.status] ?? 0;
+    const sb = statusOrder[b.status] ?? 0;
+    if (sa !== sb) return sa - sb;
+    if (a.status === 'pending') return (a.deadline || '9999').localeCompare(b.deadline || '9999');
+    return 0;
+  });
+  const sampleOptions = sortedSamples.map(s => '<option value="' + escAttr(s.id) + '">' + esc(s.name) + ' (' + (s.status === 'published' ? '已发布' : s.status === 'repeatable' ? '可反复拍' : '未完成') + ')</option>').join('');
   const html = `<div class="modal-title">新建待办</div><div class="modal-body">
     <div class="form-group"><label class="form-label">任务标题</label><input class="form-input" id="taskTitle" placeholder="输入任务内容"></div>
     <div class="form-group"><div class="form-switch">
