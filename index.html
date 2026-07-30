@@ -1381,9 +1381,46 @@ function loadData() {
 function saveData() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+    // 自动云端备份：每天首次保存时触发（静默）
+    autoCloudBackup();
   } catch (e) {
     toast('存储空间不足，请清理数据');
   }
+}
+
+// 自动云端备份（每天最多一次，静默执行）
+let cloudBackupBusy = false;
+function autoCloudBackup() {
+  if (cloudBackupBusy) return;
+  const todayStr = today();
+  const lastBackup = localStorage.getItem('wyr_cloud_backup_date') || '';
+  if (lastBackup === todayStr) return;
+  cloudBackupBusy = true;
+  const token = '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';
+  const owner = 'djhgrbrz8h-dotcom';
+  const repo = 'wangyiran-workbench';
+  const data = JSON.stringify(store);
+  // 先获取当前 backup.json 的 sha（如果需要更新）
+  fetch('https://api.github.com/repos/' + owner + '/' + repo + '/contents/backup.json', {
+    headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github.v3+json' }
+  }).then(r => r.json()).then(fileInfo => {
+    const body = {
+      message: '自动备份 ' + todayStr,
+      content: btoa(unescape(encodeURIComponent(data))),
+      branch: 'master'
+    };
+    if (fileInfo.sha) body.sha = fileInfo.sha;
+    return fetch('https://api.github.com/repos/' + owner + '/' + repo + '/contents/backup.json', {
+      method: 'PUT',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
+      body: JSON.stringify(body)
+    });
+  }).then(r => {
+    if (r && r.ok) {
+      localStorage.setItem('wyr_cloud_backup_date', todayStr);
+      if (store.settings) { store.settings.lastBackupDate = todayStr; }
+    }
+  }).catch(() => {}).finally(() => { cloudBackupBusy = false; });
 }
 
 // ==================== STORE ====================
@@ -4050,6 +4087,12 @@ function renderSettings() {
   }
 
   html += '<div class="settings-item">';
+  html += '<div class="label">云端恢复</div>';
+  html += '<button class="btn-pill-outline" onclick="cloudRestore()" style="margin-right:8px">从云端恢复</button>';
+  html += '<button class="btn-pill-outline" onclick="cloudBackupNow()">立即备份</button>';
+  html += '</div>';
+
+  html += '<div class="settings-item">';
   html += '<div class="label">导出数据</div>';
   html += '<button class="btn-pill-outline" onclick="exportData()">导出</button>';
   html += '</div>';
@@ -4082,6 +4125,71 @@ function renderSettings() {
 // ==================== API FUNCTIONS ====================
 
 // ==================== EXPORT / IMPORT ====================
+// 立即备份到云端
+function cloudBackupNow() {
+  const token = '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';
+  const owner = 'djhgrbrz8h-dotcom';
+  const repo = 'wangyiran-workbench';
+  const todayStr = today();
+  const data = JSON.stringify(store);
+  toast('正在备份...');
+  fetch('https://api.github.com/repos/' + owner + '/' + repo + '/contents/backup.json', {
+    headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github.v3+json' }
+  }).then(r => r.json()).then(fileInfo => {
+    const body = {
+      message: '手动备份 ' + todayStr,
+      content: btoa(unescape(encodeURIComponent(data))),
+      branch: 'master'
+    };
+    if (fileInfo.sha) body.sha = fileInfo.sha;
+    return fetch('https://api.github.com/repos/' + owner + '/' + repo + '/contents/backup.json', {
+      method: 'PUT',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
+      body: JSON.stringify(body)
+    });
+  }).then(r => {
+    if (r && r.ok) {
+      localStorage.setItem('wyr_cloud_backup_date', todayStr);
+      if (store.settings) { store.settings.lastBackupDate = todayStr; }
+      saveData();
+      toast('备份成功 ✅');
+      renderPage('settings');
+    } else {
+      toast('备份失败，请稍后重试', 'error');
+    }
+  }).catch(() => { toast('备份失败，请检查网络', 'error'); });
+}
+
+// 从云端恢复数据
+function cloudRestore() {
+  if (!confirm('从云端恢复将覆盖当前所有数据，确认继续？')) return;
+  toast('正在恢复...');
+  const token = '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';
+  const owner = 'djhgrbrz8h-dotcom';
+  const repo = 'wangyiran-workbench';
+  fetch('https://raw.githubusercontent.com/' + owner + '/' + repo + '/master/backup.json')
+    .then(r => { if (!r.ok) throw new Error('无备份数据'); return r.json(); })
+    .then(data => {
+      Object.keys(store).forEach(k => delete store[k]);
+      Object.assign(store, data);
+      if (!store.settings) store.settings = {};
+      if (!store.settings.userName) store.settings.userName = '王一然';
+      if (!store.settings.nickname) store.settings.nickname = '溜溜';
+      if (!store.settings.city) store.settings.city = '北京';
+      if (!store.settings.avatar) store.settings.avatar = '';
+      if (!store.settings.theme) store.settings.theme = 'pink-purple';
+      if (!store.podcastHistory) store.podcastHistory = [];
+      if (!store.sportTypes) store.sportTypes = ['跑步', '散步', '瑜伽', '力量训练', '骑行', '游泳', '舞蹈', '跳绳', 'HIIT', '普拉提'];
+      if (!store.englishVocab) store.englishVocab = [];
+      if (store.englishDay === undefined) store.englishDay = 1;
+      saveData();
+      applyTheme(store.settings.darkMode);
+      applyColorTheme(store.settings.theme);
+      toast('恢复成功 ✅');
+      goPage('home');
+    }).catch(() => { toast('恢复失败，请确认云端有备份数据', 'error'); });
+}
+
 function exportData() {
   const data = JSON.stringify(store, null, 2);
   const blob = new Blob([data], { type: 'application/json' });
