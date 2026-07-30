@@ -57,7 +57,7 @@
 
 html,body{height:100%;overflow:hidden;font-size:14px}
 body{
-  font-family:var(--font);background:linear-gradient(to top, #FFFFFF 0%, var(--gradient-accent) 15%, var(--gradient-end) 50%, var(--gradient-start) 100%);color:var(--text);
+  font-family:var(--font);background:linear-gradient(to top, #FFFFFF 0%, #FFF5F8 30%, #FFE8F0 60%, #FFD0E0 100%);color:var(--text);
   -webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;
   overscroll-behavior:none;user-select:none;
 }
@@ -140,44 +140,55 @@ body{
 /* ========== SIDE NAV ========== */
 .side-nav{
   position:fixed;top:0;left:0;bottom:0;
-  width:84px;
-  padding-top:var(--safe-top);
-  padding-bottom:var(--safe-bottom);
-  background:var(--bg-card);
-  border-right:1px solid var(--border);
-  display:flex;flex-direction:column;
+  width:88px;
+  padding:calc(var(--safe-top) + 8px) 6px var(--safe-bottom);
+  background:linear-gradient(180deg, #FFE8F0 0%, #FFF0F5 50%, #FFFAFD 100%);
+  border-right:1px solid rgba(255,157,191,0.15);
+  display:flex;flex-direction:column;align-items:center;
   z-index:100;
   overflow-y:auto;overflow-x:hidden;
+  gap:6px;
 }
 .side-nav::-webkit-scrollbar{width:0;height:0}
 .side-nav-header{
-  text-align:center;padding:18px 4px 14px;
-  border-bottom:1px solid var(--border);
-  margin-bottom:4px;
+  display:flex;flex-direction:column;align-items:center;
+  padding:8px 0 10px;
+  margin-bottom:2px;
+}
+.side-nav-avatar{
+  width:42px;height:42px;border-radius:50%;
+  object-fit:cover;border:2px solid rgba(255,157,191,0.4);
+  margin-bottom:6px;
+  background:var(--bg-card);
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;
 }
 .side-nav-title{
-  font-size:18px;font-weight:800;color:var(--gradient-start);
+  font-size:13px;font-weight:700;color:var(--purple-deep);
   line-height:1.2;
 }
 .side-nav-sub{
-  font-size:11px;color:var(--text-muted);margin-top:4px;font-weight:500;
+  font-size:9px;color:var(--text-muted);margin-top:2px;font-weight:500;
 }
-.side-nav-search{
-  display:flex;align-items:center;justify-content:center;
-  padding:10px 0;cursor:pointer;
-  color:var(--text-muted);font-size:20px;
-  border-bottom:1px solid var(--border);margin-bottom:4px;
-}
-.side-nav-search:active{color:var(--gradient-start)}
 .side-nav-item{
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:3px;padding:10px 4px;cursor:pointer;
-  color:var(--text-muted);transition:var(--transition);
-  border:none;background:none;
+  gap:3px;padding:8px 2px;
+  width:72px;
+  border-radius:14px;
+  cursor:pointer;
+  color:var(--text-secondary);transition:var(--transition);
+  border:none;background:rgba(255,255,255,0.5);
+  box-shadow:0 1px 3px rgba(255,112,160,0.06);
 }
-.side-nav-item:active{background:var(--blue-light)}
-.side-nav-item.active{color:var(--gradient-start);background:var(--blue-light)}
+.side-nav-item:active{background:rgba(255,255,255,0.8);transform:scale(0.96)}
+.side-nav-item.active{
+  color:var(--purple-deep);
+  background:linear-gradient(135deg, #FFE4EC 0%, #FFD0E0 100%);
+  box-shadow:0 2px 8px rgba(255,112,160,0.15);
+  font-weight:600;
+}
 .side-nav-icon{font-size:22px;line-height:1}
+.side-nav-label{font-size:10px;line-height:1.2}
 .side-nav-label{font-size:9px;font-weight:500;text-align:center;line-height:1.2}
 
 /* ========== DRAWER ========== */
@@ -2517,7 +2528,17 @@ const SIDE_NAV_ITEMS = [
 function renderSideNav() {
   const nav = $('#sideNav');
   if (!nav) return;
-  let html = '<div class="side-nav-header"><div class="side-nav-title">溜溜</div><div class="side-nav-sub">工作台</div></div>';
+  const avatar = (store.settings && store.settings.avatar) || '';
+  const nickName = (store.settings && store.settings.nickname) || '溜溜';
+  let html = '<div class="side-nav-header">';
+  if (avatar) {
+    html += '<img src="' + avatar + '" class="side-nav-avatar" onclick="goPage(\'profile\')">';
+  } else {
+    html += '<div class="side-nav-avatar" onclick="goPage(\'profile\')">👤</div>';
+  }
+  html += '<div class="side-nav-title">' + esc(nickName) + '</div>';
+  html += '<div class="side-nav-sub">工作台</div>';
+  html += '</div>';
   SIDE_NAV_ITEMS.forEach(item => {
     html += `<div class="side-nav-item${curPage === item.page ? ' active' : ''}" onclick="goPage('${item.page}')">
       <div class="side-nav-icon">${item.icon}</div>
