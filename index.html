@@ -4122,12 +4122,26 @@ function renderSettings() {
 function exportData() {
   const data = JSON.stringify(store, null, 2);
   const blob = new Blob([data], { type: 'application/json' });
+  const fileName = 'wyr_backup_' + today() + '.json';
+  // iOS 用分享方式保存，其他用下载
+  if (navigator.share && navigator.canShare) {
+    const file = new File([blob], fileName, { type: 'application/json' });
+    if (navigator.canShare({ files: [file] })) {
+      navigator.share({ files: [file], title: '备份数据' }).then(() => {
+        toast('备份成功 ✅');
+      }).catch(() => { toast('已取消'); });
+      return;
+    }
+  }
+  // 兜底：传统下载方式
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'wyr_backup_' + today() + '.json';
+  a.download = fileName;
+  document.body.appendChild(a);
   a.click();
-  URL.revokeObjectURL(url);
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
   toast('数据已导出');
 }
 
