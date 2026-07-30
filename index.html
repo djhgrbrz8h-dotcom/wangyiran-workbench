@@ -301,12 +301,8 @@ body{
 /* ========== SPLASH ========== */
 .splash{
   position:fixed;top:0;left:0;right:0;bottom:0;z-index:500;
-  background-color:#FFD0E0;
-  background-image:
-    radial-gradient(circle, rgba(255,255,255,0.5) 2px, transparent 2px),
-    linear-gradient(to top, #FFFFFF 0%, #FFF5F8 15%, #FFB8D0 50%, #FF9DBF 80%, #FF70A0 100%);
-  background-size:20px 20px, 100% 100%;
-  background-position:center, center bottom;
+  padding-bottom:var(--safe-bottom);
+  background:linear-gradient(to top, #FFFFFF 0%, var(--gradient-accent) 15%, var(--gradient-end) 50%, var(--gradient-start) 100%);
   display:flex;align-items:center;justify-content:center;
   transition:var(--transition);
 }
