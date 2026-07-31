@@ -1397,51 +1397,26 @@ function loadData() {
 function saveData() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
-    // 自动云端备份到 GitHub（每天最多一次，静默执行）
-    autoCloudBackup();
+    // 每天弹窗提醒备份
+    checkBackupReminder();
   } catch (e) {
     toast('存储空间不足，请清理数据');
   }
 }
 
-// 自动云端备份：每天首次保存时自动同步到 GitHub
-let cloudBackupBusy = false;
-function autoCloudBackup() {
-  if (cloudBackupBusy) return;
+// 备份提醒：开启后每天首次操作时弹窗提醒导出
+function checkBackupReminder() {
+  if (!store.settings || !store.settings.autoBackup) return;
   const todayStr = today();
-  const lastBackup = localStorage.getItem('wyr_cloud_backup_date') || '';
-  if (lastBackup === todayStr) return;
-  cloudBackupBusy = true;
-  const token = atob('Z2hvX0dLMWJod2hQNlNnUFdTMFZxN2JzTjNPUUt0Q1hVdW82bDRKdA==');
-  const owner = 'djhgrbrz8h-dotcom';
-  const repo = 'wangyiran-workbench';
-  const data = JSON.stringify(store);
-  fetch('https://api.github.com/repos/' + owner + '/' + repo + '/contents/backup.json', {
-    headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github.v3+json' }
-  }).then(r => r.json()).then(fileInfo => {
-    const body = {
-      message: 'Auto backup ' + todayStr,
-      content: btoa(unescape(encodeURIComponent(data))),
-      branch: 'master'
-    };
-    if (fileInfo.sha) body.sha = fileInfo.sha;
-    return fetch('https://api.github.com/repos/' + owner + '/' + repo + '/contents/backup.json', {
-      method: 'PUT',
-      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
-      body: JSON.stringify(body)
-    });
-  }).then(r => {
-    if (r && r.ok) {
-      localStorage.setItem('wyr_cloud_backup_date', todayStr);
-      if (store.settings) { store.settings.lastBackupDate = todayStr; }
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+  const lastRemind = localStorage.getItem('wyr_backup_remind') || '';
+  if (lastRemind === todayStr) return;
+  localStorage.setItem('wyr_backup_remind', todayStr);
+  setTimeout(() => {
+    if (confirm('📦 每日备份提醒\n\n今天的数据还没备份，要现在导出备份文件吗？')) {
+      exportData();
     }
-    cloudBackupBusy = false;
-  }).catch(() => { cloudBackupBusy = false; });
+  }, 2000);
 }
-
-// 备份提醒已废弃，改用自动云端备份
-function checkBackupReminder() {}
 
 // 备份提醒：开启后每天首次操作时弹窗提醒导出
 function checkBackupReminder() {
