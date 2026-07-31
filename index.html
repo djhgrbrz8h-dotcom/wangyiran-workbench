@@ -563,6 +563,44 @@ body{
 .sport-week-bar .bar{width:100%;border-radius:4px 4px 0 0;min-height:4px;background:linear-gradient(180deg,var(--purple),var(--purple-deep));transition:height 0.5s}
 .sport-week-bar .bar.empty{background:var(--border)}
 .sport-week-bar .day-label{font-size:10px;color:var(--text-muted)}
+
+/* ========== WEIGHT ========== */
+.weight-card{background:var(--bg-card);border-radius:var(--radius-lg);padding:16px;margin-bottom:12px;box-shadow:var(--shadow-sm);border:1px solid var(--border)}
+.weight-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.weight-header .title{font-size:15px;font-weight:700;display:flex;align-items:center;gap:6px}
+.weight-today{text-align:center;margin-bottom:12px}
+.weight-today .num{font-size:48px;font-weight:800;color:var(--purple-deep);line-height:1.1}
+.weight-today .unit{font-size:16px;font-weight:500;color:var(--text-secondary);margin-left:2px}
+.weight-today .change{font-size:13px;margin-top:4px}
+.weight-today .change.down{color:var(--success)}
+.weight-today .change.up{color:var(--danger)}
+.weight-today .change.neutral{color:var(--text-muted)}
+.weight-chart{position:relative;width:100%;height:140px;margin:12px 0}
+.weight-chart canvas{width:100%;height:100%}
+.weight-bars{display:flex;gap:4px;align-items:flex-end;height:80px;margin:12px 0}
+.weight-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+.weight-bar-wrap .bar{width:100%;border-radius:4px 4px 0 0;min-height:4px;transition:height 0.5s}
+.weight-bar-wrap .bar.down{background:var(--success)}
+.weight-bar-wrap .bar.up{background:var(--danger)}
+.weight-bar-wrap .bar.same{background:var(--border)}
+.weight-bar-wrap .bar-label{font-size:10px;color:var(--text-muted)}
+.weight-bar-wrap .bar-val{font-size:9px;font-weight:600;color:var(--text-secondary)}
+.weight-goal-section{margin-top:12px}
+.weight-goal-label{display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-bottom:4px}
+.weight-goal-bar{height:8px;border-radius:4px;background:var(--border);overflow:hidden}
+.weight-goal-bar .fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--gradient-accent),var(--gradient-end));transition:width 0.5s}
+.weight-input-row{display:flex;gap:8px;align-items:center;margin-top:12px}
+.weight-input-row input{flex:1;height:40px;border:2px solid var(--border);border-radius:var(--radius-sm);padding:0 12px;font-size:16px;font-family:var(--font);background:var(--bg);text-align:center}
+.weight-input-row input:focus{outline:none;border-color:var(--purple)}
+.weight-input-row .unit-text{font-size:14px;color:var(--text-secondary);flex-shrink:0}
+.weight-input-row .btn-add{height:40px;padding:0 20px;border:none;border-radius:var(--radius-sm);background:var(--purple-deep);color:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:var(--transition);flex-shrink:0}
+.weight-input-row .btn-add:active{transform:scale(0.95)}
+.weight-log-list{margin-top:8px;max-height:120px;overflow-y:auto}
+.weight-log-item{display:flex;align-items:center;justify-content:space-between;padding:6px 8px;border-bottom:1px solid var(--border);font-size:13px}
+.weight-log-item .date{color:var(--text-muted);font-size:11px}
+.weight-log-item .val{font-weight:600;color:var(--purple-deep)}
+.weight-log-item .del-btn{color:var(--text-muted);cursor:pointer;padding:2px 6px;font-size:16px}
+.weight-log-item .del-btn:active{color:var(--danger)}
 .week-track{display:flex;gap:6px;margin:12px 0;justify-content:center}
 .week-dot{
   width:32px;height:32px;border-radius:50%;background:var(--bg);
@@ -1198,6 +1236,8 @@ function DEFAULT_DATA() {
     diary: [], ledger: [], focus: [], bookkeeping: [],
     inspirations: [], treehole: [],
     sportTypes: ['跑步', '散步', '瑜伽', '力量训练', '骑行', '游泳', '舞蹈', '跳绳', 'HIIT', '普拉提'],
+    weightLogs: [],
+    weightGoal: null,
     englishVocab: [],
     englishDay: 1,
     podcastHistory: [],
@@ -1575,6 +1615,10 @@ const ACTION_HANDLERS = {
   SPORT_DELETE(s, p) { s.sports = s.sports.filter(x => x.id !== p.id); },
   SPORT_TYPE_ADD(s, p) { if (!s.sportTypes) s.sportTypes = []; if (!s.sportTypes.includes(p.name)) s.sportTypes.push(p.name); },
   SPORT_TYPE_DELETE(s, p) { if (s.sportTypes) s.sportTypes = s.sportTypes.filter(t => t !== p.name); },
+
+  WEIGHT_ADD(s, p) { s.weightLogs.push({ id: uid(), weight: parseFloat(p.weight), date: p.date || today() }); s.weightLogs.sort((a, b) => a.date.localeCompare(b.date)); },
+  WEIGHT_DELETE(s, p) { s.weightLogs = s.weightLogs.filter(x => x.id !== p.id); },
+  WEIGHT_GOAL_SET(s, p) { s.weightGoal = p.weightGoal !== null ? parseFloat(p.weightGoal) : null; },
 
   FOCUS_ADD(s, p) { s.focus.push({ id: uid(), taskId: p.taskId || null, minutes: p.minutes, date: today(), taskName: p.taskName || '' }); },
 
@@ -2621,6 +2665,7 @@ function renderPage(page) {
   }
 
   main.innerHTML = html;
+  if (page === 'sport') { setTimeout(drawWeightChart, 50); }
   main.scrollTop = 0;
 }
 
@@ -3095,6 +3140,124 @@ function renderSport() {
 
   let html = '';
 
+  // ====== 体重管理 ======
+  const weightLogs = store.weightLogs || [];
+  const weightGoal = store.weightGoal || null;
+  const todayLog = weightLogs.filter(w => w.date === today()).sort((a, b) => b.date.localeCompare(b.date));
+  const latestWeight = weightLogs.length > 0 ? weightLogs[weightLogs.length - 1].weight : null;
+  const todayWeight = todayLog.length > 0 ? todayLog[0].weight : latestWeight;
+  
+  // 计算变化
+  let weightChange = null;
+  let weightChangeText = '';
+  let changeClass = 'neutral';
+  if (todayWeight !== null && weightLogs.length >= 2) {
+    const sorted = [...weightLogs].sort((a, b) => b.date.localeCompare(a.date));
+    const prevIdx = sorted.findIndex(w => w.date !== today());
+    if (prevIdx >= 0) {
+      weightChange = todayWeight - sorted[prevIdx].weight;
+      if (weightChange < -0.05) { changeClass = 'down'; weightChangeText = '↓ ' + Math.abs(weightChange).toFixed(1) + ' kg'; }
+      else if (weightChange > 0.05) { changeClass = 'up'; weightChangeText = '↑ ' + weightChange.toFixed(1) + ' kg'; }
+      else { changeClass = 'neutral'; weightChangeText = '→ 持平'; }
+    }
+  }
+
+  html += '<div class="weight-card">';
+  html += '<div class="weight-header"><div class="title">⚖️ 体重管理</div></div>';
+
+  // 大数字 + 变化
+  if (todayWeight !== null) {
+    html += '<div class="weight-today">';
+    html += '<div><span class="num">' + todayWeight.toFixed(1) + '</span><span class="unit">kg</span></div>';
+    if (weightChangeText) {
+      html += '<div class="change ' + changeClass + '">' + weightChangeText + '</div>';
+    }
+    html += '</div>';
+  } else {
+    html += '<div style="text-align:center;padding:16px;color:var(--text-muted)">还没有体重记录，在下方添加第一条吧</div>';
+  }
+
+  // 折线图 Canvas
+  if (weightLogs.length >= 2) {
+    html += '<div class="weight-chart"><canvas id="weightLineChart"></canvas></div>';
+  }
+
+  // 近7天条状图
+  const recent7Days = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const ds = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    const dayLog = weightLogs.filter(w => w.date === ds);
+    const w = dayLog.length > 0 ? dayLog[0].weight : null;
+    recent7Days.push({ date: ds, weight: w, label: ['日', '一', '二', '三', '四', '五', '六'][d.getDay()] });
+  }
+  
+  const valid7Weights = recent7Days.filter(d => d.weight !== null).map(d => d.weight);
+  const allValid7 = valid7Weights.length > 0;
+  
+  if (allValid7) {
+    const minW = Math.min(...valid7Weights) - 0.5;
+    const maxW = Math.max(...valid7Weights) + 0.5;
+    const range = maxW - minW || 1;
+    
+    html += '<div style="font-size:11px;color:var(--text-muted);margin-top:8px">近7天体重变化</div>';
+    html += '<div class="weight-bars">';
+    recent7Days.forEach((d, idx) => {
+      if (d.weight !== null) {
+        const h = Math.max(8, ((d.weight - minW) / range) * 70);
+        let barClass = 'same';
+        if (idx > 0 && recent7Days[idx - 1].weight !== null) {
+          if (d.weight < recent7Days[idx - 1].weight - 0.05) barClass = 'down';
+          else if (d.weight > recent7Days[idx - 1].weight + 0.05) barClass = 'up';
+        }
+        html += '<div class="weight-bar-wrap"><div class="bar-val">' + d.weight.toFixed(1) + '</div><div class="bar ' + barClass + '" style="height:' + h + 'px"></div><div class="bar-label">' + d.label + '</div></div>';
+      } else {
+        html += '<div class="weight-bar-wrap"><div class="bar-val" style="color:var(--text-muted)">-</div><div class="bar same" style="height:4px"></div><div class="bar-label">' + d.label + '</div></div>';
+      }
+    });
+    html += '</div>';
+  }
+
+  // 目标进度条
+  if (weightGoal !== null && todayWeight !== null) {
+    const startWeight = weightLogs.length > 0 ? weightLogs[0].weight : todayWeight;
+    const totalToLose = startWeight - weightGoal;
+    const lost = startWeight - todayWeight;
+    const progress = totalToLose > 0 ? Math.min(100, Math.max(0, (lost / totalToLose) * 100)) : (todayWeight <= weightGoal ? 100 : 0);
+    const remain = todayWeight - weightGoal;
+    html += '<div class="weight-goal-section">';
+    html += '<div class="weight-goal-label"><span>目标：' + weightGoal.toFixed(1) + ' kg</span><span>' + (remain > 0 ? '还需减 ' + remain.toFixed(1) + ' kg' : remain < 0 ? '已超过目标 ' + Math.abs(remain).toFixed(1) + ' kg' : '已达成目标！🎉') + '</span></div>';
+    html += '<div class="weight-goal-bar"><div class="fill" style="width:' + Math.min(100, Math.max(0, progress)) + '%"></div></div>';
+    html += '</div>';
+  }
+
+  // 输入框
+  html += '<div class="weight-input-row">';
+  html += '<input type="number" id="weightInput" step="0.1" min="30" max="200" placeholder="输入今日体重" inputmode="decimal">';
+  html += '<span class="unit-text">kg</span>';
+  html += '<button class="btn-add" onclick="addWeight()">记录</button>';
+  html += '</div>';
+
+  // 最近记录列表
+  if (weightLogs.length > 0) {
+    html += '<div class="weight-log-list">';
+    const recentLogs = [...weightLogs].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 7);
+    recentLogs.forEach(w => {
+      html += '<div class="weight-log-item"><span>' + w.date + '</span><span class="val">' + w.weight.toFixed(1) + ' kg</span><span class="del-btn" onclick="dispatch(\'WEIGHT_DELETE\',{id:\'' + escAttr(w.id) + '\'})">×</span></div>';
+    });
+    html += '</div>';
+  }
+
+  // 目标设置
+  html += '<div style="margin-top:8px;display:flex;gap:8px;align-items:center">';
+  html += '<input type="number" id="weightGoalInput" step="0.1" min="30" max="200" placeholder="' + (weightGoal ? weightGoal.toFixed(1) : '设定目标体重') + '" value="' + (weightGoal ? weightGoal.toFixed(1) : '') + '" style="flex:1;height:34px;border:1px solid var(--border);border-radius:var(--radius-sm);padding:0 10px;font-size:13px;font-family:var(--font);background:var(--bg)">';
+  html += '<span style="font-size:13px;color:var(--text-muted);flex-shrink:0">kg</span>';
+  html += '<button class="btn-pill-outline" style="flex-shrink:0;font-size:13px" onclick="setWeightGoal()">设定目标</button>';
+  html += '</div>';
+
+  html += '</div>'; // end weight-card
+
   // Monthly statistics
   const monthSports = store.sports.filter(s => isCurrentMonth(s.date));
   const monthCount = monthSports.length;
@@ -3210,6 +3373,147 @@ let sportTimerInterval = null;
 let sportTimerSeconds = 0;
 let sportTimerRunning = false;
 let sportTimerPreset = 0;
+
+// ========== WEIGHT FUNCTIONS ==========
+function addWeight() {
+  const input = $('#weightInput');
+  if (!input) return;
+  const val = parseFloat(input.value);
+  if (isNaN(val) || val < 30 || val > 200) {
+    toast('请输入有效体重（30-200 kg）');
+    return;
+  }
+  dispatch('WEIGHT_ADD', { weight: val, date: today() });
+  input.value = '';
+  toast('体重已记录 ✓');
+}
+
+function setWeightGoal() {
+  const input = $('#weightGoalInput');
+  if (!input) return;
+  const val = input.value.trim();
+  if (val === '') {
+    dispatch('WEIGHT_GOAL_SET', { weightGoal: null });
+    toast('已清除目标');
+    return;
+  }
+  const num = parseFloat(val);
+  if (isNaN(num) || num < 30 || num > 200) {
+    toast('请输入有效体重（30-200 kg）');
+    return;
+  }
+  dispatch('WEIGHT_GOAL_SET', { weightGoal: num });
+  toast('目标已设定 ✓');
+}
+
+function drawWeightChart() {
+  const canvas = document.getElementById('weightLineChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = rect.width * dpr;
+  canvas.height = 140 * dpr;
+  canvas.style.width = rect.width + 'px';
+  canvas.style.height = '140px';
+  ctx.scale(dpr, dpr);
+  
+  const logs = (store.weightLogs || []).slice().sort((a, b) => a.date.localeCompare(b.date));
+  if (logs.length < 2) return;
+  
+  const padding = { top: 16, right: 16, bottom: 28, left: 40 };
+  const w = rect.width;
+  const h = 140;
+  const plotW = w - padding.left - padding.right;
+  const plotH = h - padding.top - padding.bottom;
+  
+  const vals = logs.map(l => l.weight);
+  const minVal = Math.floor(Math.min(...vals) - 0.5);
+  const maxVal = Math.ceil(Math.max(...vals) + 0.5);
+  const range = maxVal - minVal || 1;
+  
+  const xScale = (i) => padding.left + (i / Math.max(1, logs.length - 1)) * plotW;
+  const yScale = (v) => padding.top + plotH - ((v - minVal) / range) * plotH;
+  
+  ctx.clearRect(0, 0, w, h);
+  
+  // Grid lines
+  ctx.strokeStyle = '#F0E8EC';
+  ctx.lineWidth = 0.5;
+  for (let v = minVal; v <= maxVal; v += 0.5) {
+    const y = yScale(v);
+    ctx.beginPath();
+    ctx.moveTo(padding.left, y);
+    ctx.lineTo(w - padding.right, y);
+    ctx.stroke();
+  }
+  
+  // Y axis labels
+  ctx.fillStyle = '#C8A8B8';
+  ctx.font = '9px ' + getComputedStyle(document.body).fontFamily;
+  ctx.textAlign = 'right';
+  for (let v = minVal; v <= maxVal; v += 1) {
+    ctx.fillText(v.toFixed(1), padding.left - 6, yScale(v) + 3);
+  }
+  
+  // Area gradient
+  const grad = ctx.createLinearGradient(0, padding.top, 0, h - padding.bottom);
+  grad.addColorStop(0, 'rgba(255,112,160,0.25)');
+  grad.addColorStop(1, 'rgba(255,112,160,0.02)');
+  
+  // Draw area
+  ctx.beginPath();
+  ctx.moveTo(xScale(0), yScale(logs[0].weight));
+  for (let i = 1; i < logs.length; i++) {
+    ctx.lineTo(xScale(i), yScale(logs[i].weight));
+  }
+  ctx.lineTo(xScale(logs.length - 1), yScale(minVal));
+  ctx.lineTo(xScale(0), yScale(minVal));
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+  
+  // Draw line
+  ctx.beginPath();
+  ctx.moveTo(xScale(0), yScale(logs[0].weight));
+  for (let i = 1; i < logs.length; i++) {
+    ctx.lineTo(xScale(i), yScale(logs[i].weight));
+  }
+  ctx.strokeStyle = '#FF70A0';
+  ctx.lineWidth = 2;
+  ctx.lineJoin = 'round';
+  ctx.stroke();
+  
+  // Draw dots
+  logs.forEach((l, i) => {
+    const x = xScale(i);
+    const y = yScale(l.weight);
+    ctx.beginPath();
+    ctx.arc(x, y, 3.5, 0, Math.PI * 2);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fill();
+    ctx.strokeStyle = '#FF70A0';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  });
+  
+  // X axis labels (dates)
+  ctx.fillStyle = '#C8A8B8';
+  ctx.textAlign = 'center';
+  ctx.font = '9px ' + getComputedStyle(document.body).fontFamily;
+  const labelIndices = [];
+  if (logs.length <= 7) {
+    logs.forEach((_, i) => labelIndices.push(i));
+  } else {
+    const step = Math.max(1, Math.floor(logs.length / 6));
+    for (let i = 0; i < logs.length; i += step) labelIndices.push(i);
+    if (labelIndices[labelIndices.length - 1] !== logs.length - 1) labelIndices.push(logs.length - 1);
+  }
+  labelIndices.forEach(i => {
+    const d = logs[i].date.slice(5);
+    ctx.fillText(d, xScale(i), h - padding.bottom + 14);
+  });
+}
 
 function setSportTimerPreset(min) {
   sportTimerPreset = min * 60;
