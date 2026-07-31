@@ -1,0 +1,7 @@
+name = "wyr-backup"
+main = "index.js"
+compatibility_date = "2025-01-01"
+
+[[env.production.vars]]
+GITHUB_OWNER = "djhgrbrz8h-dotcom"
+GITHUB_REPO = "wangyiran-workbench"
