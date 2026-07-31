@@ -565,42 +565,58 @@ body{
 .sport-week-bar .day-label{font-size:10px;color:var(--text-muted)}
 
 /* ========== WEIGHT ========== */
-.weight-card{background:var(--bg-card);border-radius:var(--radius-lg);padding:16px;margin-bottom:12px;box-shadow:var(--shadow-sm);border:1px solid var(--border)}
-.weight-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.weight-header .title{font-size:15px;font-weight:700;display:flex;align-items:center;gap:6px}
-.weight-today{text-align:center;margin-bottom:12px}
-.weight-today .num{font-size:48px;font-weight:800;color:var(--purple-deep);line-height:1.1}
-.weight-today .unit{font-size:16px;font-weight:500;color:var(--text-secondary);margin-left:2px}
-.weight-today .change{font-size:13px;margin-top:4px}
-.weight-today .change.down{color:var(--success)}
-.weight-today .change.up{color:var(--danger)}
-.weight-today .change.neutral{color:var(--text-muted)}
-.weight-chart{position:relative;width:100%;height:140px;margin:12px 0}
-.weight-chart canvas{width:100%;height:100%}
-.weight-bars{display:flex;gap:4px;align-items:flex-end;height:80px;margin:12px 0}
-.weight-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
-.weight-bar-wrap .bar{width:100%;border-radius:4px 4px 0 0;min-height:4px;transition:height 0.5s}
-.weight-bar-wrap .bar.down{background:var(--success)}
-.weight-bar-wrap .bar.up{background:var(--danger)}
-.weight-bar-wrap .bar.same{background:var(--border)}
-.weight-bar-wrap .bar-label{font-size:10px;color:var(--text-muted)}
-.weight-bar-wrap .bar-val{font-size:9px;font-weight:600;color:var(--text-secondary)}
-.weight-goal-section{margin-top:12px}
+.weight-card{background:var(--bg-card);border-radius:var(--radius-lg);padding:16px;margin-bottom:12px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.weight-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.weight-header .title{font-size:16px;font-weight:700;display:flex;align-items:center;gap:6px}
+.weight-overview{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.weight-overview-item{text-align:center;padding:12px 8px;border-radius:var(--radius);background:var(--bg);border:1px solid var(--border)}
+.weight-overview-item .num{font-size:28px;font-weight:800;color:var(--purple-deep);line-height:1.2}
+.weight-overview-item .unit{font-size:12px;font-weight:500;color:var(--text-secondary)}
+.weight-overview-item .change{font-size:12px;margin-top:2px;font-weight:600}
+.weight-overview-item .change.down{color:var(--success)}
+.weight-overview-item .change.up{color:var(--danger)}
+.weight-overview-item .change.neutral{color:var(--text-muted)}
+.weight-overview-item .lbl{font-size:11px;color:var(--text-muted);margin-top:2px}
+.weight-goal-section{margin-bottom:14px}
 .weight-goal-label{display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-bottom:4px}
-.weight-goal-bar{height:8px;border-radius:4px;background:var(--border);overflow:hidden}
-.weight-goal-bar .fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--gradient-accent),var(--gradient-end));transition:width 0.5s}
-.weight-input-row{display:flex;gap:8px;align-items:center;margin-top:12px}
-.weight-input-row input{flex:1;height:40px;border:2px solid var(--border);border-radius:var(--radius-sm);padding:0 12px;font-size:16px;font-family:var(--font);background:var(--bg);text-align:center}
-.weight-input-row input:focus{outline:none;border-color:var(--purple)}
-.weight-input-row .unit-text{font-size:14px;color:var(--text-secondary);flex-shrink:0}
-.weight-input-row .btn-add{height:40px;padding:0 20px;border:none;border-radius:var(--radius-sm);background:var(--purple-deep);color:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:var(--transition);flex-shrink:0}
-.weight-input-row .btn-add:active{transform:scale(0.95)}
-.weight-log-list{margin-top:8px;max-height:120px;overflow-y:auto}
-.weight-log-item{display:flex;align-items:center;justify-content:space-between;padding:6px 8px;border-bottom:1px solid var(--border);font-size:13px}
-.weight-log-item .date{color:var(--text-muted);font-size:11px}
-.weight-log-item .val{font-weight:600;color:var(--purple-deep)}
-.weight-log-item .del-btn{color:var(--text-muted);cursor:pointer;padding:2px 6px;font-size:16px}
-.weight-log-item .del-btn:active{color:var(--danger)}
+.weight-goal-bar{height:10px;border-radius:5px;background:var(--border);overflow:hidden}
+.weight-goal-bar .fill{height:100%;border-radius:5px;background:linear-gradient(90deg,var(--gradient-accent),var(--gradient-end));transition:width 0.5s}
+/* Calendar view */
+.weight-calendar{width:100%;margin-bottom:14px}
+.weight-calendar .cal-header{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600}
+.weight-calendar .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.weight-calendar .cal-cell{aspect-ratio:1;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;font-weight:600;cursor:default;position:relative;min-height:38px;background:var(--bg);border:1px solid var(--border)}
+.weight-calendar .cal-cell.today{border:2px solid var(--purple-deep);box-shadow:0 0 0 2px rgba(255,112,160,0.15)}
+.weight-calendar .cal-cell.empty{background:transparent;border:none}
+.weight-calendar .cal-cell .day-num{font-size:10px;color:var(--text-muted);line-height:1}
+.weight-calendar .cal-cell .day-weight{font-size:12px;font-weight:700;line-height:1.2}
+.weight-calendar .cal-cell.down{background:#E8FBF0;border-color:#A3EBC5}
+.weight-calendar .cal-cell.down .day-weight{color:var(--success)}
+.weight-calendar .cal-cell.up{background:#FFF0F0;border-color:#FFC8C8}
+.weight-calendar .cal-cell.up .day-weight{color:var(--danger)}
+.weight-calendar .cal-cell.same{background:var(--bg);border-color:var(--border)}
+.weight-calendar .cal-cell.same .day-weight{color:var(--text-secondary)}
+.weight-calendar .cal-cell.future{opacity:0.4;background:var(--bg);border-color:var(--border)}
+/* Chart */
+.weight-chart-wrap{position:relative;width:100%;height:150px;margin-bottom:14px}
+.weight-chart-wrap canvas{width:100%;height:100%}
+/* Stats */
+.weight-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px}
+.weight-stat-item{text-align:center;padding:10px 4px;border-radius:var(--radius-sm);background:var(--bg);border:1px solid var(--border)}
+.weight-stat-item .val{font-size:15px;font-weight:700;color:var(--purple-deep)}
+.weight-stat-item .lbl{font-size:9px;color:var(--text-muted);margin-top:1px}
+/* Input */
+.weight-input-row{display:flex;gap:8px;align-items:center;margin-top:4px}
+.weight-input-row input{flex:1;height:42px;border:2px solid var(--border);border-radius:var(--radius-sm);padding:0 14px;font-size:16px;font-family:var(--font);background:var(--bg);text-align:center;transition:var(--transition)}
+.weight-input-row input:focus{outline:none;border-color:var(--purple-deep)}
+.weight-input-row .unit-text{font-size:15px;color:var(--text-secondary);flex-shrink:0;font-weight:600}
+.weight-input-row .btn-record{height:42px;padding:0 22px;border:none;border-radius:var(--radius-sm);background:var(--purple-deep);color:#fff;font-size:15px;font-weight:600;cursor:pointer;transition:var(--transition);flex-shrink:0;white-space:nowrap}
+.weight-input-row .btn-record:active{transform:scale(0.95)}
+.weight-goal-row{display:flex;gap:8px;align-items:center;margin-top:8px}
+.weight-goal-row input{flex:1;height:34px;border:1px solid var(--border);border-radius:var(--radius-sm);padding:0 10px;font-size:13px;font-family:var(--font);background:var(--bg);text-align:center}
+.weight-goal-row input:focus{outline:none;border-color:var(--purple-deep)}
+.weight-goal-row .btn-goal{height:34px;padding:0 16px;border:none;border-radius:var(--radius-sm);background:transparent;color:var(--purple-deep);font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--purple-deep);flex-shrink:0;white-space:nowrap;transition:var(--transition)}
+.weight-goal-row .btn-goal:active{background:var(--pink-light)}
 .week-track{display:flex;gap:6px;margin:12px 0;justify-content:center}
 .week-dot{
   width:32px;height:32px;border-radius:50%;background:var(--bg);
@@ -3140,122 +3156,201 @@ function renderSport() {
 
   let html = '';
 
-  // ====== 体重管理 ======
+  // ====== 体重管理（日历版） ======
   const weightLogs = store.weightLogs || [];
   const weightGoal = store.weightGoal || null;
-  const todayLog = weightLogs.filter(w => w.date === today()).sort((a, b) => b.date.localeCompare(b.date));
-  const latestWeight = weightLogs.length > 0 ? weightLogs[weightLogs.length - 1].weight : null;
-  const todayWeight = todayLog.length > 0 ? todayLog[0].weight : latestWeight;
   
-  // 计算变化
-  let weightChange = null;
-  let weightChangeText = '';
-  let changeClass = 'neutral';
-  if (todayWeight !== null && weightLogs.length >= 2) {
-    const sorted = [...weightLogs].sort((a, b) => b.date.localeCompare(a.date));
-    const prevIdx = sorted.findIndex(w => w.date !== today());
-    if (prevIdx >= 0) {
-      weightChange = todayWeight - sorted[prevIdx].weight;
-      if (weightChange < -0.05) { changeClass = 'down'; weightChangeText = '↓ ' + Math.abs(weightChange).toFixed(1) + ' kg'; }
-      else if (weightChange > 0.05) { changeClass = 'up'; weightChangeText = '↑ ' + weightChange.toFixed(1) + ' kg'; }
-      else { changeClass = 'neutral'; weightChangeText = '→ 持平'; }
+  // 按日期排序（从旧到新）
+  const sortedLogs = [...weightLogs].sort((a, b) => a.date.localeCompare(b.date));
+  const latestWeight = sortedLogs.length > 0 ? sortedLogs[sortedLogs.length - 1].weight : null;
+  
+  // 今日体重
+  const todayLogs = weightLogs.filter(w => w.date === today());
+  const todayWeight = todayLogs.length > 0 ? todayLogs[todayLogs.length - 1].weight : null;
+  
+  // 计算较昨日变化
+  let changeVsYesterday = null;
+  if (todayWeight !== null) {
+    const yesterdayStr = (() => { const d = new Date(); d.setDate(d.getDate() - 1); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); })();
+    const yesterdayLog = weightLogs.filter(w => w.date === yesterdayStr);
+    if (yesterdayLog.length > 0) {
+      changeVsYesterday = todayWeight - yesterdayLog[yesterdayLog.length - 1].weight;
+    }
+  }
+  
+  // 构建日期→体重映射
+  const dateWeightMap = {};
+  weightLogs.forEach(w => { dateWeightMap[w.date] = w.weight; });
+  
+  // 生成当月日历
+  const calNow = new Date();
+  const year = calNow.getFullYear();
+  const month = calNow.getMonth(); // 0-indexed
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const daysInMonth = lastDay.getDate();
+  const startDow = firstDay.getDay(); // 0=周日
+  const todayStr = today();
+  
+  // 日历单元格
+  const calCells = [];
+  // 填充月前空白
+  for (let i = 0; i < startDow; i++) calCells.push(null);
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+    const w = dateWeightMap[dateStr] !== undefined ? dateWeightMap[dateStr] : null;
+    calCells.push({ day: d, date: dateStr, weight: w, isToday: dateStr === todayStr, isFuture: dateStr > todayStr });
+  }
+  
+  // 计算颜色：与前一个有记录的天比
+  const prevRecordDates = sortedLogs.map(l => l.date);
+  calCells.forEach((cell, idx) => {
+    if (!cell || cell.weight === null) return;
+    const prevIdx = prevRecordDates.lastIndexOf(cell.date) - 1;
+    if (prevIdx < 0) { cell.trend = 'same'; return; }
+    const prevW = dateWeightMap[prevRecordDates[prevIdx]];
+    if (prevW === undefined) { cell.trend = 'same'; return; }
+    if (cell.weight < prevW - 0.05) cell.trend = 'down';
+    else if (cell.weight > prevW + 0.05) cell.trend = 'up';
+    else cell.trend = 'same';
+  });
+  
+  // 统计数据
+  const now2 = new Date();
+  const thisMonday = new Date(now2); thisMonday.setDate(now2.getDate() - ((now2.getDay() + 6) % 7));
+  const weekStart = thisMonday.getFullYear() + '-' + String(thisMonday.getMonth() + 1).padStart(2, '0') + '-' + String(thisMonday.getDate()).padStart(2, '0');
+  const weekLogs = sortedLogs.filter(l => l.date >= weekStart && l.date <= todayStr);
+  const monthLogs = sortedLogs.filter(l => l.date >= (year + '-' + String(month + 1).padStart(2, '0') + '-01') && l.date <= todayStr);
+  const weekAvg = weekLogs.length > 0 ? weekLogs.reduce((a, l) => a + l.weight, 0) / weekLogs.length : null;
+  const monthAvg = monthLogs.length > 0 ? monthLogs.reduce((a, l) => a + l.weight, 0) / monthLogs.length : null;
+  const monthMin = monthLogs.length > 0 ? Math.min(...monthLogs.map(l => l.weight)) : null;
+  const monthMax = monthLogs.length > 0 ? Math.max(...monthLogs.map(l => l.weight)) : null;
+  const monthMinDate = monthLogs.length > 0 ? monthLogs.reduce((a, b) => a.weight < b.weight ? a : b).date : null;
+  const monthMaxDate = monthLogs.length > 0 ? monthLogs.reduce((a, b) => a.weight > b.weight ? a : b).date : null;
+  
+  // 变化趋势（本周 vs 上周，本月 vs 上月）
+  let weekTrend = null;
+  if (weekAvg !== null && sortedLogs.length >= 2) {
+    const prevWeekStart = (() => { const d = new Date(thisMonday); d.setDate(d.getDate() - 7); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); })();
+    const prevWeekLogs = sortedLogs.filter(l => l.date >= prevWeekStart && l.date < weekStart);
+    if (prevWeekLogs.length > 0) {
+      const prevWeekAvg = prevWeekLogs.reduce((a, l) => a + l.weight, 0) / prevWeekLogs.length;
+      weekTrend = weekAvg - prevWeekAvg;
+    }
+  }
+  
+  let monthTrend = null;
+  if (monthAvg !== null && sortedLogs.length >= 2) {
+    const prevMonthStart = (() => { const d = new Date(year, month - 1, 1); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-01'; })();
+    const prevMonthEnd = (() => { const d = new Date(year, month, 0); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); })();
+    const prevMonthLogs = sortedLogs.filter(l => l.date >= prevMonthStart && l.date <= prevMonthEnd);
+    if (prevMonthLogs.length > 0) {
+      const prevMonthAvg = prevMonthLogs.reduce((a, l) => a + l.weight, 0) / prevMonthLogs.length;
+      monthTrend = monthAvg - prevMonthAvg;
     }
   }
 
   html += '<div class="weight-card">';
   html += '<div class="weight-header"><div class="title">⚖️ 体重管理</div></div>';
 
-  // 大数字 + 变化
+  // 概览区：当前体重 + 目标进度
+  html += '<div class="weight-overview">';
+  // 当前体重
+  html += '<div class="weight-overview-item">';
   if (todayWeight !== null) {
-    html += '<div class="weight-today">';
-    html += '<div><span class="num">' + todayWeight.toFixed(1) + '</span><span class="unit">kg</span></div>';
-    if (weightChangeText) {
-      html += '<div class="change ' + changeClass + '">' + weightChangeText + '</div>';
+    html += '<div><span class="num">' + todayWeight.toFixed(1) + '</span><span class="unit"> kg</span></div>';
+    if (changeVsYesterday !== null) {
+      if (changeVsYesterday < -0.05) html += '<div class="change down">↓ ' + Math.abs(changeVsYesterday).toFixed(1) + ' kg</div>';
+      else if (changeVsYesterday > 0.05) html += '<div class="change up">↑ ' + changeVsYesterday.toFixed(1) + ' kg</div>';
+      else html += '<div class="change neutral">→ 持平</div>';
     }
-    html += '</div>';
   } else {
-    html += '<div style="text-align:center;padding:16px;color:var(--text-muted)">还没有体重记录，在下方添加第一条吧</div>';
+    html += '<div><span class="num" style="color:var(--text-muted);font-size:20px">--</span></div>';
   }
-
-  // 折线图 Canvas
-  if (weightLogs.length >= 2) {
-    html += '<div class="weight-chart"><canvas id="weightLineChart"></canvas></div>';
+  html += '<div class="lbl">今日体重</div>';
+  html += '</div>';
+  // 目标
+  html += '<div class="weight-overview-item">';
+  if (weightGoal !== null) {
+    html += '<div><span class="num">' + weightGoal.toFixed(1) + '</span><span class="unit"> kg</span></div>';
+    if (todayWeight !== null) {
+      const remain = todayWeight - weightGoal;
+      if (remain > 0.05) html += '<div class="change up">还需 ' + remain.toFixed(1) + ' kg</div>';
+      else if (remain < -0.05) html += '<div class="change down">已超 ' + Math.abs(remain).toFixed(1) + ' kg</div>';
+      else html += '<div class="change neutral">已达成 🎉</div>';
+    }
+  } else {
+    html += '<div><span class="num" style="color:var(--text-muted);font-size:20px">--</span></div>';
+    html += '<div class="lbl">未设定</div>';
   }
-
-  // 近7天条状图
-  const recent7Days = [];
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const ds = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-    const dayLog = weightLogs.filter(w => w.date === ds);
-    const w = dayLog.length > 0 ? dayLog[0].weight : null;
-    recent7Days.push({ date: ds, weight: w, label: ['日', '一', '二', '三', '四', '五', '六'][d.getDay()] });
-  }
+  html += '<div class="lbl">目标体重</div>';
+  html += '</div>';
+  html += '</div>'; // end overview
   
-  const valid7Weights = recent7Days.filter(d => d.weight !== null).map(d => d.weight);
-  const allValid7 = valid7Weights.length > 0;
-  
-  if (allValid7) {
-    const minW = Math.min(...valid7Weights) - 0.5;
-    const maxW = Math.max(...valid7Weights) + 0.5;
-    const range = maxW - minW || 1;
-    
-    html += '<div style="font-size:11px;color:var(--text-muted);margin-top:8px">近7天体重变化</div>';
-    html += '<div class="weight-bars">';
-    recent7Days.forEach((d, idx) => {
-      if (d.weight !== null) {
-        const h = Math.max(8, ((d.weight - minW) / range) * 70);
-        let barClass = 'same';
-        if (idx > 0 && recent7Days[idx - 1].weight !== null) {
-          if (d.weight < recent7Days[idx - 1].weight - 0.05) barClass = 'down';
-          else if (d.weight > recent7Days[idx - 1].weight + 0.05) barClass = 'up';
-        }
-        html += '<div class="weight-bar-wrap"><div class="bar-val">' + d.weight.toFixed(1) + '</div><div class="bar ' + barClass + '" style="height:' + h + 'px"></div><div class="bar-label">' + d.label + '</div></div>';
-      } else {
-        html += '<div class="weight-bar-wrap"><div class="bar-val" style="color:var(--text-muted)">-</div><div class="bar same" style="height:4px"></div><div class="bar-label">' + d.label + '</div></div>';
-      }
-    });
-    html += '</div>';
-  }
-
   // 目标进度条
-  if (weightGoal !== null && todayWeight !== null) {
-    const startWeight = weightLogs.length > 0 ? weightLogs[0].weight : todayWeight;
+  if (weightGoal !== null && todayWeight !== null && sortedLogs.length >= 2) {
+    const startWeight = sortedLogs[0].weight;
     const totalToLose = startWeight - weightGoal;
     const lost = startWeight - todayWeight;
     const progress = totalToLose > 0 ? Math.min(100, Math.max(0, (lost / totalToLose) * 100)) : (todayWeight <= weightGoal ? 100 : 0);
-    const remain = todayWeight - weightGoal;
     html += '<div class="weight-goal-section">';
-    html += '<div class="weight-goal-label"><span>目标：' + weightGoal.toFixed(1) + ' kg</span><span>' + (remain > 0 ? '还需减 ' + remain.toFixed(1) + ' kg' : remain < 0 ? '已超过目标 ' + Math.abs(remain).toFixed(1) + ' kg' : '已达成目标！🎉') + '</span></div>';
-    html += '<div class="weight-goal-bar"><div class="fill" style="width:' + Math.min(100, Math.max(0, progress)) + '%"></div></div>';
+    html += '<div class="weight-goal-label"><span>从 ' + startWeight.toFixed(1) + ' 到 ' + weightGoal.toFixed(1) + ' kg</span><span>' + Math.round(progress) + '%</span></div>';
+    html += '<div class="weight-goal-bar"><div class="fill" style="width:' + progress + '%"></div></div>';
     html += '</div>';
   }
-
-  // 输入框
+  
+  // 日历视图
+  html += '<div class="weight-calendar">';
+  html += '<div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;font-weight:600">' + year + '年' + (month + 1) + '月</div>';
+  html += '<div class="cal-header">';
+  ['日', '一', '二', '三', '四', '五', '六'].forEach(d => { html += '<div>' + d + '</div>'; });
+  html += '</div>';
+  html += '<div class="cal-grid">';
+  calCells.forEach(cell => {
+    if (!cell) {
+      html += '<div class="cal-cell empty"></div>';
+    } else {
+      let cls = 'cal-cell';
+      if (cell.isToday) cls += ' today';
+      if (cell.isFuture) cls += ' future';
+      else if (cell.weight !== null) cls += ' ' + (cell.trend || 'same');
+      html += '<div class="' + cls + '">';
+      html += '<div class="day-num">' + cell.day + '</div>';
+      if (cell.weight !== null) {
+        html += '<div class="day-weight">' + cell.weight.toFixed(1) + '</div>';
+      }
+      html += '</div>';
+    }
+  });
+  html += '</div></div>'; // end calendar
+  
+  // 折线图
+  if (sortedLogs.length >= 2) {
+    html += '<div class="weight-chart-wrap"><canvas id="weightLineChart"></canvas></div>';
+  }
+  
+  // 统计数据
+  html += '<div class="weight-stats">';
+  html += '<div class="weight-stat-item"><div class="val">' + (weekAvg !== null ? weekAvg.toFixed(1) : '--') + '</div><div class="lbl">本周均重' + (weekTrend !== null ? (weekTrend < -0.05 ? ' ↓' : weekTrend > 0.05 ? ' ↑' : ' →') : '') + '</div></div>';
+  html += '<div class="weight-stat-item"><div class="val">' + (monthAvg !== null ? monthAvg.toFixed(1) : '--') + '</div><div class="lbl">本月均重' + (monthTrend !== null ? (monthTrend < -0.05 ? ' ↓' : monthTrend > 0.05 ? ' ↑' : ' →') : '') + '</div></div>';
+  html += '<div class="weight-stat-item"><div class="val">' + (monthMin !== null ? monthMin.toFixed(1) : '--') + '</div><div class="lbl">本月最低' + (monthMinDate ? ' ' + monthMinDate.slice(5) : '') + '</div></div>';
+  html += '<div class="weight-stat-item"><div class="val">' + (monthMax !== null ? monthMax.toFixed(1) : '--') + '</div><div class="lbl">本月最高' + (monthMaxDate ? ' ' + monthMaxDate.slice(5) : '') + '</div></div>';
+  html += '</div>';
+  
+  // 输入行
   html += '<div class="weight-input-row">';
   html += '<input type="number" id="weightInput" step="0.1" min="30" max="200" placeholder="输入今日体重" inputmode="decimal">';
   html += '<span class="unit-text">kg</span>';
-  html += '<button class="btn-add" onclick="addWeight()">记录</button>';
+  html += '<button class="btn-record" onclick="addWeight()">记录</button>';
   html += '</div>';
-
-  // 最近记录列表
-  if (weightLogs.length > 0) {
-    html += '<div class="weight-log-list">';
-    const recentLogs = [...weightLogs].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 7);
-    recentLogs.forEach(w => {
-      html += '<div class="weight-log-item"><span>' + w.date + '</span><span class="val">' + w.weight.toFixed(1) + ' kg</span><span class="del-btn" onclick="dispatch(\'WEIGHT_DELETE\',{id:\'' + escAttr(w.id) + '\'})">×</span></div>';
-    });
-    html += '</div>';
-  }
-
-  // 目标设置
-  html += '<div style="margin-top:8px;display:flex;gap:8px;align-items:center">';
-  html += '<input type="number" id="weightGoalInput" step="0.1" min="30" max="200" placeholder="' + (weightGoal ? weightGoal.toFixed(1) : '设定目标体重') + '" value="' + (weightGoal ? weightGoal.toFixed(1) : '') + '" style="flex:1;height:34px;border:1px solid var(--border);border-radius:var(--radius-sm);padding:0 10px;font-size:13px;font-family:var(--font);background:var(--bg)">';
+  
+  // 目标行
+  html += '<div class="weight-goal-row">';
+  html += '<input type="number" id="weightGoalInput" step="0.1" min="30" max="200" placeholder="' + (weightGoal ? weightGoal.toFixed(1) : '设定目标体重') + '" value="' + (weightGoal ? weightGoal.toFixed(1) : '') + '" inputmode="decimal">';
   html += '<span style="font-size:13px;color:var(--text-muted);flex-shrink:0">kg</span>';
-  html += '<button class="btn-pill-outline" style="flex-shrink:0;font-size:13px" onclick="setWeightGoal()">设定目标</button>';
+  html += '<button class="btn-goal" onclick="setWeightGoal()">' + (weightGoal ? '修改目标' : '设定目标') + '</button>';
   html += '</div>';
-
+  
   html += '</div>'; // end weight-card
 
   // Monthly statistics
@@ -3413,9 +3508,9 @@ function drawWeightChart() {
   const rect = canvas.parentElement.getBoundingClientRect();
   const dpr = window.devicePixelRatio || 1;
   canvas.width = rect.width * dpr;
-  canvas.height = 140 * dpr;
+  canvas.height = 150 * dpr;
   canvas.style.width = rect.width + 'px';
-  canvas.style.height = '140px';
+  canvas.style.height = '150px';
   ctx.scale(dpr, dpr);
   
   const logs = (store.weightLogs || []).slice().sort((a, b) => a.date.localeCompare(b.date));
@@ -3423,7 +3518,7 @@ function drawWeightChart() {
   
   const padding = { top: 16, right: 16, bottom: 28, left: 40 };
   const w = rect.width;
-  const h = 140;
+  const h = 150;
   const plotW = w - padding.left - padding.right;
   const plotH = h - padding.top - padding.bottom;
   
