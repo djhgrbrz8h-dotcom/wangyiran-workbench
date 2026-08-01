@@ -2004,6 +2004,16 @@ function saveEditTask(taskId) {
   toast('已更新');
 }
 
+function fixSampleColors() {
+  store.samples.forEach(function(s) {
+    delete s.manualUrgency;
+    s.urgency = calcUrgency(s.deadline, s.status);
+  });
+  saveData();
+  renderPage('home');
+  alert('修复完成！已更新 ' + store.samples.length + ' 个样品颜色。\n请去样品页查看已超时分类。');
+}
+
 function resetAllSampleColors() {
   store.samples.forEach(s => {
     delete s.manualUrgency;
@@ -2813,7 +2823,7 @@ function renderHome() {
   // Hero banner
   html += `<div class="hero-banner">
     <h2>${getGreeting()}，${esc(nickName)} ✨</h2>
-    <p>${today()} · 今天也是元气满满的一天</p>
+    <p>${today()} · 今天也是元气满满的一天 · <a onclick="fixSampleColors();return false" style="color:#FF70A0;text-decoration:underline;cursor:pointer">🔧修复颜色</a></p>
     <div class="hero-stats">
       <div class="hero-stat" onclick="goPage('tasks')"><div class="val">${pendingTasks}</div><div class="lbl">待办任务</div></div>
       <div class="hero-stat" onclick="goPage('samples')"><div class="val">${pendingSamples}</div><div class="lbl">待拍样品</div></div>
