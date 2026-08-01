@@ -4328,6 +4328,7 @@ function renderBookkeeping() {
   html += '</div>';
 
   if (income > 0 || expense > 0) {
+    const balance = income - expense;
     const total = income + expense;
     const incomePct = total > 0 ? (income / total) * 100 : 0;
     const expensePct = total > 0 ? (expense / total) * 100 : 0;
@@ -4344,7 +4345,7 @@ function renderBookkeeping() {
       <circle cx="60" cy="60" r="45" fill="none" stroke="var(--danger)" stroke-width="12"
         stroke-dasharray="${expenseDash} ${circumference}" stroke-dashoffset="${-incomeDash}"/>
     </svg>`;
-    html += `<div class="bookkeeping-donut-center"><div class="val">¥${fmt(total)}</div><div class="lbl">总计</div></div>`;
+    html += `<div class="bookkeeping-donut-center"><div class="val" style="color:${balance >= 0 ? 'var(--success)' : 'var(--danger)'}">¥${fmt(balance)}</div><div class="lbl">结余</div></div>`;
     html += '</div>';
     html += '<div class="bookkeeping-legend">';
     html += `<div class="bookkeeping-legend-item"><span class="bookkeeping-legend-dot" style="background:var(--success)"></span>收入 ${incomePct.toFixed(0)}%</div>`;
