@@ -1112,13 +1112,20 @@ function getGreeting() {
   return '晚上好';
 }
 
-function calcUrgency(deadline) {
-  if (!deadline) return 'green';
+function calcUrgency(deadline, status) {
+  // 已发布 → 绿色
+  if (status === 'published') return 'green';
+  if (!deadline) return 'yellow';
   const days = daysBetween(today(), deadline);
-  if (days < 0) return 'crimson';
-  if (days <= 1) return 'red';
-  if (days <= 3) return 'yellow';
-  return 'green';
+  // 已超时
+  if (days < 0) {
+    // 超时 >= 3天 → 深红
+    if (Math.abs(days) >= 3) return 'crimson';
+    // 超时 < 3天 → 红色
+    return 'red';
+  }
+  // 未超时 → 黄色
+  return 'yellow';
 }
 
 function getTodayISO() { return today(); }
@@ -1613,11 +1620,38 @@ const ACTION_HANDLERS = {
   TASK_EDIT(s, p) { const t = s.tasks.find(x => x.id === p.id); if (t) { t.title = p.title; t.priority = p.priority; if (p.scheduledDate !== undefined) t.scheduledDate = p.scheduledDate; if (p.repeat !== undefined) { t.repeat = p.repeat; t.repeatDay = p.repeatDay !== undefined ? p.repeatDay : null; } } },
   TASK_REORDER(s, p) { const [item] = s.tasks.splice(p.from, 1); s.tasks.splice(p.to, 0, item); },
 
-  SAMPLE_ADD(s, p) { s.samples.push({ id: uid(), name: p.name, cat: p.cat, tag: p.tag || p.cat, script: p.script || false, note: p.note || '', addDate: p.addDate || today(), deadline: p.deadline || addDays(today(), 7), urgency: calcUrgency(p.deadline || addDays(today(), 7)), publishedDate: null, status: 'pending' }); },
-  SAMPLE_EDIT(s, p) { const sm = s.samples.find(x => x.id === p.id); if (sm) { Object.assign(sm, { name: p.name, cat: p.cat, tag: p.tag, script: p.script, note: p.note, addDate: p.addDate, deadline: p.deadline, urgency: calcUrgency(p.deadline) }); } },
+  SAMPLE_ADD(s, p) {
+    const status = p.status || 'pending';
+    const addDate = p.addDate || today();
+    const deadline = p.deadline || addDays(addDate, 7);
+    const urgency = p.manualUrgency || calcUrgency(deadline, status);
+    s.samples.push({
+      id: uid(), name: p.name, cat: p.cat, tag: p.tag || p.cat,
+      script: p.script || false, note: p.note || '',
+      addDate: addDate, deadline: deadline,
+      urgency: urgency, manualUrgency: p.manualUrgency || null,
+      publishedDate: status === 'published' ? (p.publishedDate || today()) : null,
+      status: status
+    });
+  },
+  SAMPLE_EDIT(s, p) {
+    const sm = s.samples.find(x => x.id === p.id);
+    if (sm) {
+      const status = p.status !== undefined ? p.status : sm.status;
+      const deadline = p.deadline || sm.deadline;
+      const urgency = p.manualUrgency || calcUrgency(deadline, status);
+      Object.assign(sm, {
+        name: p.name, cat: p.cat, tag: p.tag, script: p.script, note: p.note,
+        addDate: p.addDate || sm.addDate, deadline: deadline,
+        urgency: urgency, manualUrgency: p.manualUrgency || null,
+        status: status,
+        publishedDate: status === 'published' ? (p.publishedDate || sm.publishedDate || today()) : (status === 'pending' ? null : sm.publishedDate)
+      });
+    }
+  },
   SAMPLE_DELETE(s, p) { s.samples = s.samples.filter(x => x.id !== p.id); },
-  SAMPLE_PUBLISH(s, p) { const sm = s.samples.find(x => x.id === p.id); if (sm) { sm.status = 'published'; sm.publishedDate = today(); sm.urgency = 'green'; } },
-  SAMPLE_RESET(s, p) { const sm = s.samples.find(x => x.id === p.id); if (sm) { sm.status = 'pending'; sm.publishedDate = null; sm.urgency = calcUrgency(sm.deadline); } },
+  SAMPLE_PUBLISH(s, p) { const sm = s.samples.find(x => x.id === p.id); if (sm) { sm.status = 'published'; sm.publishedDate = today(); if (!sm.manualUrgency) sm.urgency = 'green'; } },
+  SAMPLE_RESET(s, p) { const sm = s.samples.find(x => x.id === p.id); if (sm) { sm.status = 'pending'; sm.publishedDate = null; if (!sm.manualUrgency) sm.urgency = calcUrgency(sm.deadline, 'pending'); } },
 
   DIARY_ADD(s, p) { s.diary.unshift({ id: uid(), date: p.date || today(), mood: p.mood || '', weather: p.weather || '', content: p.content || '' }); },
   DIARY_DELETE(s, p) { s.diary = s.diary.filter(x => x.id !== p.id); },
@@ -1971,6 +2005,8 @@ function saveEditTask(taskId) {
 }
 
 function showAddSampleModal() {
+  const todayStr = today();
+  const defaultDeadline = addDays(todayStr, 7);
   const html = `<div class="modal-title">添加样品</div><div class="modal-body">
     <div class="form-group"><label class="form-label">样品名称</label><input class="form-input" id="smName" placeholder="输入样品名称"></div>
     <div class="form-group"><label class="form-label">品类</label>
@@ -1978,6 +2014,26 @@ function showAddSampleModal() {
     </div>
     <div class="form-group"><label class="form-label">标签</label><input class="form-input" id="smTag" placeholder="穿搭/护发/美妆..."></div>
     <div class="form-group"><label class="form-label">备注</label><input class="form-input" id="smNote" placeholder="可选备注"></div>
+    <div style="display:flex;gap:8px">
+      <div class="form-group" style="flex:1"><label class="form-label">添加日期</label><input class="form-input" type="date" id="smAddDate" value="${todayStr}"></div>
+      <div class="form-group" style="flex:1"><label class="form-label">截止日期</label><input class="form-input" type="date" id="smDeadline" value="${defaultDeadline}"></div>
+    </div>
+    <div class="form-group"><label class="form-label">样品状态</label>
+      <select class="form-input" id="smStatus" onchange="onSampleStatusChange()">
+        <option value="pending">未拍摄</option>
+        <option value="published">已发布</option>
+        <option value="repeatable">可反复拍</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">标记颜色</label>
+      <select class="form-input" id="smUrgency">
+        <option value="">自动（推荐）</option>
+        <option value="green">🟢 绿色 - 已发布</option>
+        <option value="yellow">🟡 黄色 - 未超时未拍</option>
+        <option value="red">🔴 红色 - 超时 &lt; 3天</option>
+        <option value="crimson">⚫ 深红 - 超时 ≥ 3天</option>
+      </select>
+    </div>
     <div class="form-group"><div class="form-switch">
       <span class="form-label">脚本已完成</span>
       <div class="toggle" id="smScript" onclick="this.classList.toggle('on')"></div>
@@ -1990,14 +2046,28 @@ function showAddSampleModal() {
   openModal(html);
 }
 
+function onSampleStatusChange() {
+  const statusEl = document.getElementById('smStatus');
+  const urgencyEl = document.getElementById('smUrgency');
+  if (!statusEl || !urgencyEl) return;
+  // 如果选了"已发布"，自动把颜色设为绿色
+  if (statusEl.value === 'published') {
+    urgencyEl.value = 'green';
+  }
+}
+
 function saveNewSample() {
-  const name = $('#smName')?.value?.trim();
+  const name = document.getElementById('smName')?.value?.trim();
   if (!name) { toast('请输入名称'); return; }
-  const cat = $('#smCat')?.value || '穿搭';
-  const tag = $('#smTag')?.value?.trim() || cat;
-  const note = $('#smNote')?.value?.trim() || '';
-  const script = $('#smScript')?.classList.contains('on') || false;
-  dispatch('SAMPLE_ADD', { name, cat, tag, script, note });
+  const cat = document.getElementById('smCat')?.value || '穿搭';
+  const tag = document.getElementById('smTag')?.value?.trim() || cat;
+  const note = document.getElementById('smNote')?.value?.trim() || '';
+  const addDate = document.getElementById('smAddDate')?.value || today();
+  const deadline = document.getElementById('smDeadline')?.value || addDays(addDate, 7);
+  const status = document.getElementById('smStatus')?.value || 'pending';
+  const manualUrgency = document.getElementById('smUrgency')?.value || null;
+  const script = document.getElementById('smScript')?.classList.contains('on') || false;
+  dispatch('SAMPLE_ADD', { name, cat, tag, note, addDate, deadline, status, manualUrgency, script });
   closeModal();
   toast('样品已添加');
 }
@@ -2005,6 +2075,13 @@ function saveNewSample() {
 function showEditSampleModal(id) {
   const sample = store.samples.find(s => s.id === id);
   if (!sample) return;
+  const urgencyOptions = [
+    { v: '', t: '自动（推荐）' },
+    { v: 'green', t: '🟢 绿色 - 已发布' },
+    { v: 'yellow', t: '🟡 黄色 - 未超时未拍' },
+    { v: 'red', t: '🔴 红色 - 超时 < 3天' },
+    { v: 'crimson', t: '⚫ 深红 - 超时 ≥ 3天' }
+  ];
   const html = `<div class="modal-title">编辑样品</div><div class="modal-body">
     <div class="form-group"><label class="form-label">样品名称</label><input class="form-input" id="smName" value="${escAttr(sample.name)}"></div>
     <div class="form-group"><label class="form-label">品类</label>
@@ -2012,15 +2089,23 @@ function showEditSampleModal(id) {
     </div>
     <div class="form-group"><label class="form-label">标签</label><input class="form-input" id="smTag" value="${escAttr(sample.tag || '')}"></div>
     <div class="form-group"><label class="form-label">备注</label><input class="form-input" id="smNote" value="${escAttr(sample.note || '')}"></div>
-    <div class="form-group"><label class="form-label">添加日期</label><input class="form-input" type="date" id="smAddDate" value="${sample.addDate || ''}"></div>
-    <div class="form-group"><label class="form-label">截止日期</label><input class="form-input" type="date" id="smDeadline" value="${sample.deadline || ''}"></div>
+    <div style="display:flex;gap:8px">
+      <div class="form-group" style="flex:1"><label class="form-label">添加日期</label><input class="form-input" type="date" id="smAddDate" value="${sample.addDate || today()}"></div>
+      <div class="form-group" style="flex:1"><label class="form-label">截止日期</label><input class="form-input" type="date" id="smDeadline" value="${sample.deadline || ''}"></div>
+    </div>
+    <div class="form-group"><label class="form-label">样品状态</label>
+      <select class="form-input" id="smStatus" onchange="onSampleStatusChange()">
+        <option value="pending"${sample.status === 'pending' ? ' selected' : ''}>未拍摄</option>
+        <option value="published"${sample.status === 'published' ? ' selected' : ''}>已发布</option>
+        <option value="repeatable"${sample.status === 'repeatable' ? ' selected' : ''}>可反复拍</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">标记颜色</label>
+      <select class="form-input" id="smUrgency">${urgencyOptions.map(o => '<option value="' + o.v + '"' + ((sample.manualUrgency || '') === o.v ? ' selected' : '') + '>' + o.t + '</option>').join('')}</select>
+    </div>
     <div class="form-group"><div class="form-switch">
       <span class="form-label">脚本已完成</span>
       <div class="toggle${sample.script ? ' on' : ''}" id="smScript" onclick="this.classList.toggle('on')"></div>
-    </div></div>
-    <div class="form-group"><div class="form-switch">
-      <span class="form-label">已发布</span>
-      <div class="toggle${sample.status === 'published' ? ' on' : ''}" id="smPublished" onclick="this.classList.toggle('on')"></div>
     </div></div>
   </div>
   <div class="modal-actions" style="flex-wrap:wrap;gap:8px">
@@ -2036,26 +2121,17 @@ function showEditSampleModal(id) {
 }
 
 function saveEditSample(id) {
-  const name = $('#smName')?.value?.trim();
+  const name = document.getElementById('smName')?.value?.trim();
   if (!name) { toast('请输入名称'); return; }
-  const isPublished = $('#smPublished')?.classList.contains('on') || false;
-  const script = $('#smScript')?.classList.contains('on') || false;
-  const sample = store.samples.find(s => s.id === id);
-  if (isPublished && sample && sample.status !== 'published') {
-    dispatch('SAMPLE_PUBLISH', { id });
-  } else if (!isPublished && sample && sample.status === 'published') {
-    dispatch('SAMPLE_RESET', { id });
-  }
-  dispatch('SAMPLE_EDIT', {
-    id,
-    name,
-    cat: $('#smCat')?.value || '穿搭',
-    tag: $('#smTag')?.value?.trim() || $('#smCat')?.value || '穿搭',
-    script,
-    note: $('#smNote')?.value?.trim() || '',
-    addDate: $('#smAddDate')?.value || today(),
-    deadline: $('#smDeadline')?.value || addDays(today(), 7)
-  });
+  const cat = document.getElementById('smCat')?.value || '穿搭';
+  const tag = document.getElementById('smTag')?.value?.trim() || cat;
+  const note = document.getElementById('smNote')?.value?.trim() || '';
+  const addDate = document.getElementById('smAddDate')?.value || today();
+  const deadline = document.getElementById('smDeadline')?.value || addDays(addDate, 7);
+  const status = document.getElementById('smStatus')?.value || 'pending';
+  const manualUrgency = document.getElementById('smUrgency')?.value || null;
+  const script = document.getElementById('smScript')?.classList.contains('on') || false;
+  dispatch('SAMPLE_EDIT', { id, name, cat, tag, note, addDate, deadline, status, manualUrgency, script });
   closeModal();
   toast('样品已更新');
 }
@@ -2697,12 +2773,25 @@ function renderHome() {
   const userName = (store.settings && store.settings.userName) || '王一然';
   const nickName = (store.settings && store.settings.nickname) || '溜溜';
 
-  const pendingSampleList = store.samples.filter(s => s.status === 'pending').sort((a, b) => {
-    // 按 deadline 从近到远排序：最近截止的排最前（红→黄→绿）
-    const aDead = a.deadline || '9999-99-99';
-    const bDead = b.deadline || '9999-99-99';
-    return aDead.localeCompare(bDead);
-  }).slice(0, 8);
+  const pendingSampleList = store.samples
+    .filter(s => s.status !== 'published') // 未发布的（含 pending 和 repeatable）
+    .sort((a, b) => {
+      // 排序优先级：超时天数（从多到少）→ 未超时按截止日（从近到远）→ 可反复拍放最后
+      const aDead = a.deadline || '9999-99-99';
+      const bDead = b.deadline || '9999-99-99';
+      const aOverdue = daysBetween(today(), aDead);
+      const bOverdue = daysBetween(today(), bDead);
+      // repeatable 放最后
+      if (a.status === 'repeatable' && b.status !== 'repeatable') return 1;
+      if (b.status === 'repeatable' && a.status !== 'repeatable') return -1;
+      // 都超时 → 超时多的排前面
+      if (aOverdue < 0 && bOverdue < 0) return aOverdue - bOverdue;
+      // 一个超时一个没 → 超时的排前面
+      if (aOverdue < 0 && bOverdue >= 0) return -1;
+      if (bOverdue < 0 && aOverdue >= 0) return 1;
+      // 都没超时 → 截止日近的排前面
+      return aDead.localeCompare(bDead);
+    }).slice(0, 8);
 
   let html = '';
 
@@ -2793,8 +2882,17 @@ function renderSamples() {
   else if (curSampleTab === 'pending') samples = samples.filter(s => s.status === 'pending');
 
   if (curSampleTab === 'pending') {
-    // 按 deadline 从近到远排序（红→黄→绿，最急在前）
-    samples.sort((a, b) => (a.deadline || '9999-99-99').localeCompare(b.deadline || '9999-99-99'));
+    // 按紧急程度排序：超时天数多→少→未超时按截止日近→远
+    samples.sort((a, b) => {
+      const aDead = a.deadline || '9999-99-99';
+      const bDead = b.deadline || '9999-99-99';
+      const aOverdue = daysBetween(today(), aDead);
+      const bOverdue = daysBetween(today(), bDead);
+      if (aOverdue < 0 && bOverdue < 0) return aOverdue - bOverdue;
+      if (aOverdue < 0) return -1;
+      if (bOverdue < 0) return 1;
+      return aDead.localeCompare(bDead);
+    });
   } else {
     samples.sort((a, b) => new Date(b.addDate || 0) - new Date(a.addDate || 0));
   }
