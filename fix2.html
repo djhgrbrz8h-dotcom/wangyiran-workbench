@@ -1879,7 +1879,22 @@ function globalSearch() {
 function goSearchResult(type, id) {
   closeSearch();
   switch (type) {
-    case 'samples': goPage('samples'); break;
+    case 'samples':
+      curSampleTab = 'all';
+      curSampleCat = 'all';
+      goPage('samples');
+      // 延迟等渲染完成后滚动到目标样品并高亮
+      setTimeout(function() {
+        var el = document.getElementById('sample-' + id);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          el.style.transition = 'all 0.3s';
+          el.style.boxShadow = '0 0 0 4px var(--purple-deep)';
+          el.style.borderRadius = 'var(--radius)';
+          setTimeout(function() { el.style.boxShadow = ''; }, 2000);
+        }
+      }, 300);
+      break;
     case 'tasks': goPage('tasks'); break;
     case 'diary': goPage('diary'); break;
     case 'memo': goPage('memo'); break;
@@ -2245,6 +2260,26 @@ function copyScriptContent(id) {
   if (!sc) return;
   copyToClipboard(sc.content);
   toast('脚本内容已复制到剪贴板 📋');
+}
+
+function viewScriptFull(id) {
+  const sc = store.scripts.find(s => s.id === id);
+  if (!sc) return;
+  const sample = sc.sampleId ? store.samples.find(s => s.id === sc.sampleId) : null;
+  const tagHtml = (sc.tags || []).map(t => '<span class="script-tag">' + esc(t) + '</span>').join('');
+  let html = '<div class="modal-title">📜 ' + esc(sc.title) + '</div>';
+  html += '<div class="modal-body" style="max-height:70vh;overflow-y:auto">';
+  if (tagHtml) html += '<div class="script-tags" style="margin-bottom:8px">' + tagHtml + '</div>';
+  if (sample) html += '<div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">📦 关联样品：' + esc(sample.name) + '</div>';
+  html += '<div style="white-space:pre-wrap;font-size:14px;line-height:1.8;background:var(--bg);padding:16px;border-radius:var(--radius);border:1px solid var(--border)">' + esc(sc.content) + '</div>';
+  html += '<div style="font-size:11px;color:var(--text-muted);margin-top:8px">更新于 ' + (sc.updatedAt || sc.createdAt || '') + '</div>';
+  html += '</div>';
+  html += '<div class="modal-actions">';
+  html += '<button class="btn-pill-outline" onclick="copyScriptContent(\'' + escAttr(sc.id) + '\')">📋 复制内容</button>';
+  html += '<button class="btn-pill-outline" onclick="closeModal();showEditScriptModal(\'' + escAttr(sc.id) + '\')">✏️ 编辑</button>';
+  html += '<button class="btn-pill" style="background:var(--purple);color:#fff" onclick="closeModal()">关闭</button>';
+  html += '</div>';
+  openModal(html);
 }
 
 function viewSampleScripts(sampleId) {
@@ -2995,7 +3030,7 @@ function renderSamples() {
       const urgClass = 'urgency-' + (s.urgency || 'green');
       const statusIcon = s.status === 'published' ? '✅' : s.status === 'repeatable' ? '🔁' : '⏳';
       const statusLabel = s.status === 'published' ? '已发布' : s.status === 'repeatable' ? '可反复拍' : '未完成';
-      html += `<div class="sample-item" onclick="showEditSampleModal('${escAttr(s.id)}')" style="cursor:pointer">
+      html += `<div class="sample-item" id="sample-${escAttr(s.id)}" onclick="showEditSampleModal('${escAttr(s.id)}')" style="cursor:pointer">
         <div class="urgency-dot ${urgClass}"></div>
         <div class="sample-info">
           <div class="sample-name">${esc(s.name)}</div>
@@ -4649,6 +4684,7 @@ function renderScripts() {
       html += '<div class="script-card-header">';
       html += '<div class="script-title">📜 ' + esc(sc.title) + '</div>';
       html += '<div class="script-actions">';
+      html += '<button class="script-btn-copy" onclick="viewScriptFull(\'' + escAttr(sc.id) + '\')" title="查看完整内容">👁️ 查看</button>';
       html += '<button class="script-btn-copy" onclick="copyScriptContent(\'' + escAttr(sc.id) + '\')" title="一键复制">📋 复制</button>';
       html += '<span style="cursor:pointer;font-size:14px;margin-left:8px" onclick="showEditScriptModal(\'' + escAttr(sc.id) + '\')">✏️</span>';
       html += '<span style="cursor:pointer;font-size:14px;margin-left:4px;color:var(--danger)" onclick="confirmDeleteScript(\'' + escAttr(sc.id) + '\')">🗑️</span>';
