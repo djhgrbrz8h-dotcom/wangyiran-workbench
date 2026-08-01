@@ -2895,11 +2895,16 @@ function renderSamples() {
   else if (curSampleTab === 'repeatable') samples = samples.filter(s => s.status === 'repeatable');
   else if (curSampleTab === 'pending') samples = samples.filter(s => s.status === 'pending');
   else if (curSampleTab === 'overdue') samples = samples.filter(s => {
-    // 已超时：截止日已过 + 未发布
+    // 已超时 ≥ 3天：截止日已过至少3天 + 未发布
     if (s.status === 'published') return false;
     if (!s.deadline) return false;
-    return daysBetween(today(), s.deadline) < 0;
+    return daysBetween(today(), s.deadline) <= -3;
   });
+
+  if (curSampleTab === 'overdue') {
+    // 已超时分类：全部强制深红色
+    samples.forEach(s => { s.urgency = 'crimson'; });
+  }
 
   if (curSampleTab === 'pending') {
     // 按紧急程度排序：超时天数多→少→未超时按截止日近→远
@@ -2928,7 +2933,7 @@ function renderSamples() {
   const overdueCount = store.samples.filter(s => {
     if (s.status === 'published') return false;
     if (!s.deadline) return false;
-    return daysBetween(today(), s.deadline) < 0;
+    return daysBetween(today(), s.deadline) <= -3;
   }).length;
 
   let html = '';
