@@ -13,7 +13,7 @@
 <meta name="description" content="王一然工作台 - 个人效率管理工具">
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/icon-512.png">
-<title>王一然工作台</title>
+<title>王一然工作台 v8</title>
 <style>
 /* ========== CSS RESET & THEME ========== */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -4833,6 +4833,16 @@ function importDataPrompt() {
 function init() {
   applyTheme(store.settings.darkMode);
   applyColorTheme(store.settings.theme || 'pink-purple');
+
+  // === 强制刷新所有样品颜色（每次启动都执行）===
+  if (store.samples && store.samples.length > 0) {
+    store.samples.forEach(s => {
+      s.urgency = calcUrgency(s.deadline, s.status);
+      delete s.manualUrgency;
+    });
+    saveData();
+  }
+  // === 颜色刷新完毕 ===
 
   // Show splash only first time each day
   const today = new Date().toISOString().slice(0,10);
