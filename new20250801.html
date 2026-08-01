@@ -2774,18 +2774,10 @@ function renderPage(page) {
 // ==================== PAGE RENDERERS ====================
 
 function renderHome() {
-  // 自动刷新样品颜色
-  let colorChanged = false;
+  // 强制刷新所有样品颜色
   store.samples.forEach(s => {
-    if (!s.manualUrgency || s.manualUrgency === '') {
-      const newUrgency = calcUrgency(s.deadline, s.status);
-      if (s.urgency !== newUrgency) {
-        s.urgency = newUrgency;
-        colorChanged = true;
-      }
-    }
+    s.urgency = calcUrgency(s.deadline, s.status);
   });
-  if (colorChanged) saveData();
 
   const visibleTasks = store.tasks.filter(t => !t.hidden && (!t.scheduledDate || t.scheduledDate <= today()));
   const pendingTasks = visibleTasks.filter(t => !t.done).length;
@@ -2899,34 +2891,31 @@ function renderHome() {
 }
 
 function renderSamples() {
-  // 自动刷新所有样品颜色（手动设置过的除外）
-  let colorChanged = false;
+  // 强制刷新所有样品颜色（无视手动设置）
   store.samples.forEach(s => {
-    if (!s.manualUrgency || s.manualUrgency === '') {
-      const newUrgency = calcUrgency(s.deadline, s.status);
-      if (s.urgency !== newUrgency) {
-        s.urgency = newUrgency;
-        colorChanged = true;
-      }
-    }
+    s.urgency = calcUrgency(s.deadline, s.status);
   });
-  if (colorChanged) saveData();
 
   let samples = [...store.samples];
   if (curSampleTab === 'published') samples = samples.filter(s => s.status === 'published');
   else if (curSampleTab === 'repeatable') samples = samples.filter(s => s.status === 'repeatable');
   else if (curSampleTab === 'pending') samples = samples.filter(s => s.status === 'pending');
   else if (curSampleTab === 'overdue') samples = samples.filter(s => {
-    // 已超时 ≥ 3天：截止日已过至少3天 + 未发布
     if (s.status === 'published') return false;
     if (!s.deadline) return false;
     return daysBetween(today(), s.deadline) <= -3;
   });
 
-  if (curSampleTab === 'overdue') {
-    // 已超时分类：全部强制深红色
-    samples.forEach(s => { s.urgency = 'crimson'; });
-  }
+  // 强制颜色：已超时=深红，已发布=绿，其余按规则
+  samples.forEach(s => {
+    if (curSampleTab === 'overdue') {
+      s.urgency = 'crimson';
+    } else if (curSampleTab === 'published') {
+      s.urgency = 'green';
+    } else {
+      s.urgency = calcUrgency(s.deadline, s.status);
+    }
+  });
 
   if (curSampleTab === 'pending') {
     // 按紧急程度排序：超时天数多→少→未超时按截止日近→远
