@@ -1116,6 +1116,8 @@ function getGreeting() {
 function calcUrgency(deadline, status) {
   // 已发布 → 绿色
   if (status === 'published') return 'green';
+  // 可反复拍 → 粉色
+  if (status === 'repeatable') return 'pink';
   if (!deadline) return 'yellow';
   const days = daysBetween(today(), deadline);
   // 已超时
