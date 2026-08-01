@@ -2765,11 +2765,17 @@ function renderPage(page) {
 
 function renderHome() {
   // 自动刷新样品颜色
+  let colorChanged = false;
   store.samples.forEach(s => {
     if (!s.manualUrgency) {
-      s.urgency = calcUrgency(s.deadline, s.status);
+      const newUrgency = calcUrgency(s.deadline, s.status);
+      if (s.urgency !== newUrgency) {
+        s.urgency = newUrgency;
+        colorChanged = true;
+      }
     }
   });
+  if (colorChanged) saveData();
 
   const visibleTasks = store.tasks.filter(t => !t.hidden && (!t.scheduledDate || t.scheduledDate <= today()));
   const pendingTasks = visibleTasks.filter(t => !t.done).length;
@@ -2884,11 +2890,17 @@ function renderHome() {
 
 function renderSamples() {
   // 自动刷新所有样品颜色（手动设置过的除外）
+  let colorChanged = false;
   store.samples.forEach(s => {
     if (!s.manualUrgency) {
-      s.urgency = calcUrgency(s.deadline, s.status);
+      const newUrgency = calcUrgency(s.deadline, s.status);
+      if (s.urgency !== newUrgency) {
+        s.urgency = newUrgency;
+        colorChanged = true;
+      }
     }
   });
+  if (colorChanged) saveData();
 
   let samples = [...store.samples];
   if (curSampleTab === 'published') samples = samples.filter(s => s.status === 'published');
