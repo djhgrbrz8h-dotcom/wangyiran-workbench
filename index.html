@@ -2004,6 +2004,17 @@ function saveEditTask(taskId) {
   toast('已更新');
 }
 
+function resetAllSampleColors() {
+  if (!confirm('确定重置所有样品的颜色标记吗？\n\n重置后系统会根据截止日期和状态自动判断颜色，手动设置过的也会被清除。')) return;
+  store.samples.forEach(s => {
+    s.manualUrgency = null;
+    s.urgency = calcUrgency(s.deadline, s.status);
+  });
+  saveData();
+  renderPage('samples');
+  toast('颜色已重置 ✓');
+}
+
 function showAddSampleModal() {
   const todayStr = today();
   const defaultDeadline = addDays(todayStr, 7);
@@ -2967,6 +2978,7 @@ function renderSamples() {
   html += '</div>';
 
   html += '<button class="btn-pill-sm" style="background:var(--purple);color:#fff;margin-bottom:12px" onclick="showAddSampleModal()">+ 添加样品</button>';
+  html += '<button class="btn-pill-sm" style="background:transparent;color:var(--text-secondary);border:1px solid var(--border);margin-bottom:12px;margin-left:6px" onclick="resetAllSampleColors()">🔄 重置颜色</button>';
 
   if (filteredSamples.length === 0) {
     html += '<div class="empty-state"><div class="icon">📦</div><div class="text">暂无样品</div></div>';
