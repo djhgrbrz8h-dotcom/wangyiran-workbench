@@ -1147,97 +1147,182 @@ function isCurrentMonth(d) { return getMonthKey(d) === getThisMonth(); }
 
 // ==================== BEGINNER ENGLISH VOCABULARY ====================
 const ENGLISH_WORDS = [
-  { word: 'hello', phonetic: '/həˈloʊ/', meaning: 'int. 你好', cat: 'greetings' },
-  { word: 'goodbye', phonetic: '/ˌɡʊdˈbaɪ/', meaning: 'int. 再见', cat: 'greetings' },
-  { word: 'thank you', phonetic: '/θæŋk juː/', meaning: '谢谢', cat: 'greetings' },
-  { word: 'sorry', phonetic: '/ˈsɒri/', meaning: '对不起，抱歉', cat: 'greetings' },
-  { word: 'please', phonetic: '/pliːz/', meaning: '请', cat: 'greetings' },
-  { word: 'yes', phonetic: '/jes/', meaning: 'adv. 是的', cat: 'greetings' },
-  { word: 'no', phonetic: '/noʊ/', meaning: 'adv. 不，不是', cat: 'greetings' },
-  { word: 'friend', phonetic: '/frend/', meaning: 'n. 朋友', cat: 'family' },
-  { word: 'family', phonetic: '/ˈfæməli/', meaning: 'n. 家庭', cat: 'family' },
-  { word: 'mother', phonetic: '/ˈmʌðər/', meaning: 'n. 母亲', cat: 'family' },
-  { word: 'father', phonetic: '/ˈfɑːðər/', meaning: 'n. 父亲', cat: 'family' },
-  { word: 'sister', phonetic: '/ˈsɪstər/', meaning: 'n. 姐妹', cat: 'family' },
-  { word: 'brother', phonetic: '/ˈbrʌðər/', meaning: 'n. 兄弟', cat: 'family' },
-  { word: 'one', phonetic: '/wʌn/', meaning: 'num. 一', cat: 'numbers' },
-  { word: 'two', phonetic: '/tuː/', meaning: 'num. 二', cat: 'numbers' },
-  { word: 'three', phonetic: '/θriː/', meaning: 'num. 三', cat: 'numbers' },
-  { word: 'four', phonetic: '/fɔːr/', meaning: 'num. 四', cat: 'numbers' },
-  { word: 'five', phonetic: '/faɪv/', meaning: 'num. 五', cat: 'numbers' },
-  { word: 'ten', phonetic: '/ten/', meaning: 'num. 十', cat: 'numbers' },
-  { word: 'hundred', phonetic: '/ˈhʌndrəd/', meaning: 'num. 百', cat: 'numbers' },
-  { word: 'red', phonetic: '/red/', meaning: 'adj. 红色的', cat: 'colors' },
-  { word: 'blue', phonetic: '/bluː/', meaning: 'adj. 蓝色的', cat: 'colors' },
-  { word: 'green', phonetic: '/ɡriːn/', meaning: 'adj. 绿色的', cat: 'colors' },
-  { word: 'yellow', phonetic: '/ˈjeloʊ/', meaning: 'adj. 黄色的', cat: 'colors' },
-  { word: 'white', phonetic: '/waɪt/', meaning: 'adj. 白色的', cat: 'colors' },
-  { word: 'black', phonetic: '/blæk/', meaning: 'adj. 黑色的', cat: 'colors' },
-  { word: 'water', phonetic: '/ˈwɔːtər/', meaning: 'n. 水', cat: 'food' },
-  { word: 'bread', phonetic: '/bred/', meaning: 'n. 面包', cat: 'food' },
-  { word: 'apple', phonetic: '/ˈæpəl/', meaning: 'n. 苹果', cat: 'food' },
-  { word: 'milk', phonetic: '/mɪlk/', meaning: 'n. 牛奶', cat: 'food' },
-  { word: 'coffee', phonetic: '/ˈkɒfi/', meaning: 'n. 咖啡', cat: 'food' },
-  { word: 'book', phonetic: '/bʊk/', meaning: 'n. 书', cat: 'objects' },
-  { word: 'phone', phonetic: '/foʊn/', meaning: 'n. 手机，电话', cat: 'objects' },
-  { word: 'chair', phonetic: '/tʃer/', meaning: 'n. 椅子', cat: 'objects' },
-  { word: 'table', phonetic: '/ˈteɪbəl/', meaning: 'n. 桌子', cat: 'objects' },
-  { word: 'door', phonetic: '/dɔːr/', meaning: 'n. 门', cat: 'objects' },
-  { word: 'window', phonetic: '/ˈwɪndoʊ/', meaning: 'n. 窗户', cat: 'objects' }
+  // Day 1-5: 日常社交与自我介绍
+  { word: 'introduce', phonetic: '/ˌɪntrəˈdjuːs/', meaning: 'v. 介绍', cat: '社交' },
+  { word: 'hometown', phonetic: '/ˈhoʊmtaʊn/', meaning: 'n. 家乡', cat: '社交' },
+  { word: 'hobby', phonetic: '/ˈhɒbi/', meaning: 'n. 爱好', cat: '社交' },
+  { word: 'weekend', phonetic: '/ˌwiːkˈend/', meaning: 'n. 周末', cat: '社交' },
+  { word: 'usually', phonetic: '/ˈjuːʒuəli/', meaning: 'adv. 通常', cat: '社交' },
+  { word: 'colleague', phonetic: '/ˈkɒliːɡ/', meaning: 'n. 同事', cat: '社交' },
+  { word: 'foreigner', phonetic: '/ˈfɒrənər/', meaning: 'n. 外国人', cat: '社交' },
+  { word: 'language', phonetic: '/ˈlæŋɡwɪdʒ/', meaning: 'n. 语言', cat: '社交' },
+  { word: 'practice', phonetic: '/ˈpræktɪs/', meaning: 'v./n. 练习', cat: '社交' },
+  { word: 'conversation', phonetic: '/ˌkɒnvərˈseɪʃən/', meaning: 'n. 对话', cat: '社交' },
+  { word: 'experience', phonetic: '/ɪkˈspɪriəns/', meaning: 'n. 经历，经验', cat: '社交' },
+  { word: 'opinion', phonetic: '/əˈpɪnjən/', meaning: 'n. 看法', cat: '社交' },
+  { word: 'agree', phonetic: '/əˈɡriː/', meaning: 'v. 同意', cat: '社交' },
+  { word: 'disagree', phonetic: '/ˌdɪsəˈɡriː/', meaning: 'v. 不同意', cat: '社交' },
+  { word: 'suggest', phonetic: '/səˈdʒest/', meaning: 'v. 建议', cat: '社交' },
+  { word: 'describe', phonetic: '/dɪˈskraɪb/', meaning: 'v. 描述', cat: '社交' },
+  { word: 'personality', phonetic: '/ˌpɜːrsəˈnæləti/', meaning: 'n. 性格', cat: '社交' },
+  { word: 'confident', phonetic: '/ˈkɒnfɪdənt/', meaning: 'adj. 自信的', cat: '社交' },
+  { word: 'nervous', phonetic: '/ˈnɜːrvəs/', meaning: 'adj. 紧张的', cat: '社交' },
+  { word: 'impressive', phonetic: '/ɪmˈpresɪv/', meaning: 'adj. 令人印象深刻的', cat: '社交' },
+
+  // Day 6-10: 日常生活与时间
+  { word: 'schedule', phonetic: '/ˈʃedjuːl/', meaning: 'n. 日程安排', cat: '日常' },
+  { word: 'routine', phonetic: '/ruːˈtiːn/', meaning: 'n. 日常习惯', cat: '日常' },
+  { word: 'appointment', phonetic: '/əˈpɔɪntmənt/', meaning: 'n. 约会，预约', cat: '日常' },
+  { word: 'urgent', phonetic: '/ˈɜːrdʒənt/', meaning: 'adj. 紧急的', cat: '日常' },
+  { word: 'available', phonetic: '/əˈveɪləbəl/', meaning: 'adj. 有空的', cat: '日常' },
+  { word: 'convenient', phonetic: '/kənˈviːniənt/', meaning: 'adj. 方便的', cat: '日常' },
+  { word: 'prepare', phonetic: '/prɪˈper/', meaning: 'v. 准备', cat: '日常' },
+  { word: 'organize', phonetic: '/ˈɔːrɡənaɪz/', meaning: 'v. 组织，整理', cat: '日常' },
+  { word: 'remind', phonetic: '/rɪˈmaɪnd/', meaning: 'v. 提醒', cat: '日常' },
+  { word: 'forget', phonetic: '/fərˈɡet/', meaning: 'v. 忘记', cat: '日常' },
+  { word: 'remember', phonetic: '/rɪˈmembər/', meaning: 'v. 记住', cat: '日常' },
+  { word: 'decide', phonetic: '/dɪˈsaɪd/', meaning: 'v. 决定', cat: '日常' },
+  { word: 'choice', phonetic: '/tʃɔɪs/', meaning: 'n. 选择', cat: '日常' },
+  { word: 'opportunity', phonetic: '/ˌɒpərˈtjuːnəti/', meaning: 'n. 机会', cat: '日常' },
+  { word: 'challenge', phonetic: '/ˈtʃælɪndʒ/', meaning: 'n. 挑战', cat: '日常' },
+  { word: 'solution', phonetic: '/səˈluːʃən/', meaning: 'n. 解决方案', cat: '日常' },
+  { word: 'improve', phonetic: '/ɪmˈpruːv/', meaning: 'v. 提高，改善', cat: '日常' },
+  { word: 'progress', phonetic: '/ˈproʊɡres/', meaning: 'n. 进步', cat: '日常' },
+  { word: 'patience', phonetic: '/ˈpeɪʃəns/', meaning: 'n. 耐心', cat: '日常' },
+  { word: 'mistake', phonetic: '/mɪˈsteɪk/', meaning: 'n. 错误', cat: '日常' },
+
+  // Day 11-15: 旅行与交通
+  { word: 'destination', phonetic: '/ˌdestɪˈneɪʃən/', meaning: 'n. 目的地', cat: '旅行' },
+  { word: 'passenger', phonetic: '/ˈpæsɪndʒər/', meaning: 'n. 乘客', cat: '旅行' },
+  { word: 'luggage', phonetic: '/ˈlʌɡɪdʒ/', meaning: 'n. 行李', cat: '旅行' },
+  { word: 'reservation', phonetic: '/ˌrezərˈveɪʃən/', meaning: 'n. 预订', cat: '旅行' },
+  { word: 'flight', phonetic: '/flaɪt/', meaning: 'n. 航班', cat: '旅行' },
+  { word: 'direction', phonetic: '/dɪˈrekʃən/', meaning: 'n. 方向', cat: '旅行' },
+  { word: 'distance', phonetic: '/ˈdɪstəns/', meaning: 'n. 距离', cat: '旅行' },
+  { word: 'currency', phonetic: '/ˈkʌrənsi/', meaning: 'n. 货币', cat: '旅行' },
+  { word: 'exchange', phonetic: '/ɪksˈtʃeɪndʒ/', meaning: 'v./n. 兑换', cat: '旅行' },
+  { word: 'passport', phonetic: '/ˈpæspɔːrt/', meaning: 'n. 护照', cat: '旅行' },
+  { word: 'recommend', phonetic: '/ˌrekəˈmend/', meaning: 'v. 推荐', cat: '旅行' },
+  { word: 'sightseeing', phonetic: '/ˈsaɪtsiːɪŋ/', meaning: 'n. 观光', cat: '旅行' },
+  { word: 'culture', phonetic: '/ˈkʌltʃər/', meaning: 'n. 文化', cat: '旅行' },
+  { word: 'tradition', phonetic: '/trəˈdɪʃən/', meaning: 'n. 传统', cat: '旅行' },
+  { word: 'delicious', phonetic: '/dɪˈlɪʃəs/', meaning: 'adj. 美味的', cat: '旅行' },
+  { word: 'comfortable', phonetic: '/ˈkʌmftəbəl/', meaning: 'adj. 舒适的', cat: '旅行' },
+  { word: 'dangerous', phonetic: '/ˈdeɪndʒərəs/', meaning: 'adj. 危险的', cat: '旅行' },
+  { word: 'souvenir', phonetic: '/ˌsuːvəˈnɪr/', meaning: 'n. 纪念品', cat: '旅行' },
+  { word: 'photograph', phonetic: '/ˈfoʊtəɡræf/', meaning: 'n. 照片', cat: '旅行' },
+  { word: 'adventure', phonetic: '/ədˈventʃər/', meaning: 'n. 冒险', cat: '旅行' },
+
+  // Day 16-20: 工作与职场
+  { word: 'interview', phonetic: '/ˈɪntərvjuː/', meaning: 'n./v. 面试', cat: '职场' },
+  { word: 'resume', phonetic: '/rɪˈzuːm/', meaning: 'n. 简历', cat: '职场' },
+  { word: 'salary', phonetic: '/ˈsæləri/', meaning: 'n. 工资', cat: '职场' },
+  { word: 'promotion', phonetic: '/prəˈmoʊʃən/', meaning: 'n. 晋升', cat: '职场' },
+  { word: 'deadline', phonetic: '/ˈdedlaɪn/', meaning: 'n. 截止日期', cat: '职场' },
+  { word: 'project', phonetic: '/ˈprɒdʒekt/', meaning: 'n. 项目', cat: '职场' },
+  { word: 'meeting', phonetic: '/ˈmiːtɪŋ/', meaning: 'n. 会议', cat: '职场' },
+  { word: 'presentation', phonetic: '/ˌprezənˈteɪʃən/', meaning: 'n. 演讲，展示', cat: '职场' },
+  { word: 'client', phonetic: '/ˈklaɪənt/', meaning: 'n. 客户', cat: '职场' },
+  { word: 'negotiate', phonetic: '/nɪˈɡoʊʃieɪt/', meaning: 'v. 谈判', cat: '职场' },
+  { word: 'cooperate', phonetic: '/koʊˈɒpəreɪt/', meaning: 'v. 合作', cat: '职场' },
+  { word: 'responsible', phonetic: '/rɪˈspɒnsəbəl/', meaning: 'adj. 负责的', cat: '职场' },
+  { word: 'efficient', phonetic: '/ɪˈfɪʃənt/', meaning: 'adj. 高效的', cat: '职场' },
+  { word: 'flexible', phonetic: '/ˈfleksəbəl/', meaning: 'adj. 灵活的', cat: '职场' },
+  { word: 'pressure', phonetic: '/ˈpreʃər/', meaning: 'n. 压力', cat: '职场' },
+  { word: 'balance', phonetic: '/ˈbæləns/', meaning: 'n./v. 平衡', cat: '职场' },
+  { word: 'achieve', phonetic: '/əˈtʃiːv/', meaning: 'v. 达成', cat: '职场' },
+  { word: 'professional', phonetic: '/prəˈfeʃənəl/', meaning: 'adj. 专业的', cat: '职场' },
+  { word: 'attitude', phonetic: '/ˈætɪtjuːd/', meaning: 'n. 态度', cat: '职场' },
+  { word: 'inspire', phonetic: '/ɪnˈspaɪər/', meaning: 'v. 激励，启发', cat: '职场' },
+
+  // Day 21-25: 情感与观点表达
+  { word: 'grateful', phonetic: '/ˈɡreɪtfəl/', meaning: 'adj. 感激的', cat: '情感' },
+  { word: 'disappointed', phonetic: '/ˌdɪsəˈpɔɪntɪd/', meaning: 'adj. 失望的', cat: '情感' },
+  { word: 'curious', phonetic: '/ˈkjʊriəs/', meaning: 'adj. 好奇的', cat: '情感' },
+  { word: 'embarrassed', phonetic: '/ɪmˈbærəst/', meaning: 'adj. 尴尬的', cat: '情感' },
+  { word: 'proud', phonetic: '/praʊd/', meaning: 'adj. 自豪的', cat: '情感' },
+  { word: 'jealous', phonetic: '/ˈdʒeləs/', meaning: 'adj. 嫉妒的', cat: '情感' },
+  { word: 'relieved', phonetic: '/rɪˈliːvd/', meaning: 'adj. 松一口气的', cat: '情感' },
+  { word: 'anxious', phonetic: '/ˈæŋkʃəs/', meaning: 'adj. 焦虑的', cat: '情感' },
+  { word: 'honestly', phonetic: '/ˈɒnɪstli/', meaning: 'adv. 老实说', cat: '情感' },
+  { word: 'actually', phonetic: '/ˈæktʃuəli/', meaning: 'adv. 其实', cat: '情感' },
+  { word: 'probably', phonetic: '/ˈprɒbəbli/', meaning: 'adv. 大概，很可能', cat: '情感' },
+  { word: 'definitely', phonetic: '/ˈdefɪnətli/', meaning: 'adv. 肯定，绝对', cat: '情感' },
+  { word: 'especially', phonetic: '/ɪˈspeʃəli/', meaning: 'adv. 尤其', cat: '情感' },
+  { word: 'absolutely', phonetic: '/ˌæbsəˈluːtli/', meaning: 'adv. 完全地', cat: '情感' },
+  { word: 'completely', phonetic: '/kəmˈpliːtli/', meaning: 'adv. 彻底地', cat: '情感' },
+  { word: 'seriously', phonetic: '/ˈsɪriəsli/', meaning: 'adv. 认真地', cat: '情感' },
+  { word: 'personally', phonetic: '/ˈpɜːrsənəli/', meaning: 'adv. 就我个人而言', cat: '情感' },
+  { word: 'fortunately', phonetic: '/ˈfɔːrtʃənətli/', meaning: 'adv. 幸运的是', cat: '情感' },
+  { word: 'unfortunately', phonetic: '/ʌnˈfɔːrtʃənətli/', meaning: 'adv. 不幸的是', cat: '情感' },
+  { word: 'obviously', phonetic: '/ˈɒbviəsli/', meaning: 'adv. 显然', cat: '情感' },
+
+  // Day 26-30: 购物、科技与健康
+  { word: 'discount', phonetic: '/ˈdɪskaʊnt/', meaning: 'n. 折扣', cat: '生活' },
+  { word: 'receipt', phonetic: '/rɪˈsiːt/', meaning: 'n. 收据', cat: '生活' },
+  { word: 'refund', phonetic: '/ˈriːfʌnd/', meaning: 'n./v. 退款', cat: '生活' },
+  { word: 'quality', phonetic: '/ˈkwɒləti/', meaning: 'n. 质量', cat: '生活' },
+  { word: 'bargain', phonetic: '/ˈbɑːrɡɪn/', meaning: 'n. 便宜货', cat: '生活' },
+  { word: 'afford', phonetic: '/əˈfɔːrd/', meaning: 'v. 买得起', cat: '生活' },
+  { word: 'technology', phonetic: '/tekˈnɒlədʒi/', meaning: 'n. 科技', cat: '生活' },
+  { word: 'device', phonetic: '/dɪˈvaɪs/', meaning: 'n. 设备', cat: '生活' },
+  { word: 'battery', phonetic: '/ˈbætəri/', meaning: 'n. 电池', cat: '生活' },
+  { word: 'update', phonetic: '/ʌpˈdeɪt/', meaning: 'v./n. 更新', cat: '生活' },
+  { word: 'connect', phonetic: '/kəˈnekt/', meaning: 'v. 连接', cat: '生活' },
+  { word: 'download', phonetic: '/ˌdaʊnˈloʊd/', meaning: 'v. 下载', cat: '生活' },
+  { word: 'exercise', phonetic: '/ˈeksərsaɪz/', meaning: 'n./v. 锻炼', cat: '生活' },
+  { word: 'nutrition', phonetic: '/njuːˈtrɪʃən/', meaning: 'n. 营养', cat: '生活' },
+  { word: 'energy', phonetic: '/ˈenərdʒi/', meaning: 'n. 精力', cat: '生活' },
+  { word: 'relax', phonetic: '/rɪˈlæks/', meaning: 'v. 放松', cat: '生活' },
+  { word: 'habit', phonetic: '/ˈhæbɪt/', meaning: 'n. 习惯', cat: '生活' },
+  { word: 'environment', phonetic: '/ɪnˈvaɪrənmənt/', meaning: 'n. 环境', cat: '生活' },
+  { word: 'celebrate', phonetic: '/ˈselɪbreɪt/', meaning: 'v. 庆祝', cat: '生活' },
+  { word: 'independent', phonetic: '/ˌɪndɪˈpendənt/', meaning: 'adj. 独立的', cat: '生活' }
 ];
 
 function getDayWords(dayNum) {
-  const startIdx = (dayNum - 1) * 4;
+  const startIdx = (dayNum - 1) * 5;
   const newWords = [];
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 5; i++) {
     newWords.push(ENGLISH_WORDS[(startIdx + i) % ENGLISH_WORDS.length]);
   }
+  // 复习词：前一天的第一个词
   if (dayNum > 1) {
-    const reviewIdx = (dayNum - 2) * 4;
-    newWords.push(ENGLISH_WORDS[reviewIdx % ENGLISH_WORDS.length]);
+    newWords.push(ENGLISH_WORDS[((dayNum - 2) * 5) % ENGLISH_WORDS.length]);
   } else {
-    newWords.push(ENGLISH_WORDS[(startIdx + 4) % ENGLISH_WORDS.length]);
+    newWords.push(ENGLISH_WORDS[(startIdx + 5) % ENGLISH_WORDS.length]);
   }
   return newWords;
 }
 
 function getDaySentences(dayNum) {
   const words = getDayWords(dayNum);
+  const cat = words[0] ? words[0].cat : '社交';
   const sentences = [];
-  if (words.some(w => w.word === 'hello')) {
-    sentences.push({ en: 'Hello! How are you today?', zh: '你好！你今天怎么样？' });
-  } else if (words.some(w => w.cat === 'greetings')) {
-    const w = words.find(w => w.cat === 'greetings');
-    sentences.push({ en: 'Please say ' + w.word + ' to your friend.', zh: '请对你的朋友说' + w.meaning.replace(/^(int\.|adv\.)\s/, '') + '。' });
-  } else if (words.some(w => w.cat === 'numbers')) {
-    sentences.push({ en: 'I have three apples and two books.', zh: '我有三个苹果和两本书。' });
-  } else if (words.some(w => w.cat === 'colors')) {
-    sentences.push({ en: 'The red apple is on the table.', zh: '红色的苹果在桌子上。' });
-  } else if (words.some(w => w.cat === 'family')) {
-    sentences.push({ en: 'My family has four people.', zh: '我家有四口人。' });
-  } else if (words.some(w => w.cat === 'food')) {
-    sentences.push({ en: 'I drink water and eat bread every day.', zh: '我每天喝水吃面包。' });
-  } else if (words.some(w => w.cat === 'objects')) {
-    sentences.push({ en: 'The book is on the table by the window.', zh: '书在窗户旁边的桌子上。' });
+  const w1 = words[0], w2 = words[1], w3 = words[2];
+  
+  if (cat === '社交') {
+    sentences.push({ en: 'I\'d like to ' + w1.word + ' myself. My name is Wang Yiran.', zh: '我想' + w1.meaning.replace(/^(v\.|n\.|adj\.|adv\.)\s/, '') + '一下自己，我叫王一然。' });
+    sentences.push({ en: 'In my ' + w2.word + ', people are very friendly.', zh: '在我的' + w2.meaning.replace(/^(n\.|v\.)\s/, '') + '，人们都很友好。' });
+  } else if (cat === '日常') {
+    sentences.push({ en: 'I need to ' + w1.word + ' for the meeting tomorrow.', zh: '我需要为明天的会议做' + w1.meaning.replace(/^(v\.|n\.|adj\.|adv\.)\s/, '') + '。' });
+    sentences.push({ en: 'Don\'t ' + w2.word + ' to bring your notebook.', zh: '别忘了带笔记本。' });
+  } else if (cat === '旅行') {
+    sentences.push({ en: 'Our ' + w1.word + ' is a beautiful beach town.', zh: '我们的' + w1.meaning.replace(/^(n\.)\s/, '') + '是一个美丽的海滨小镇。' });
+    sentences.push({ en: 'Could you ' + w2.word + ' a good restaurant nearby?', zh: '你能' + w2.meaning.replace(/^(v\.)\s/, '') + '一个附近的好餐厅吗？' });
+  } else if (cat === '职场') {
+    sentences.push({ en: 'I have an important ' + w1.word + ' at 3 PM.', zh: '我下午三点有个重要的' + w1.meaning.replace(/^(n\.)\s/, '') + '。' });
+    sentences.push({ en: 'We need to ' + w2.word + ' with the marketing team.', zh: '我们需要和市场部' + w2.meaning.replace(/^(v\.)\s/, '') + '。' });
+  } else if (cat === '情感') {
+    sentences.push({ en: 'I\'m really ' + w1.word + ' about learning new things.', zh: '我对学新东西真的很' + w1.meaning.replace(/^(adj\.)\s/, '') + '。' });
+    sentences.push({ en: w3.word.charAt(0).toUpperCase() + w3.word.slice(1) + ', I think it\'s a great idea.', zh: w3.meaning.replace(/^(adv\.)\s/, '') + '，我觉得这是个好主意。' });
+  } else if (cat === '生活') {
+    sentences.push({ en: 'This product has excellent ' + w1.word + '.', zh: '这个产品' + w1.meaning.replace(/^(n\.)\s/, '') + '非常好。' });
+    sentences.push({ en: 'I try to ' + w2.word + ' for 30 minutes every day.', zh: '我尽量每天' + w2.meaning.replace(/^(v\.|n\.\/v\.)\s/, '') + '30分钟。' });
   } else {
     sentences.push({ en: 'I like to learn new words every day.', zh: '我喜欢每天学习新单词。' });
   }
-
-  if (words.some(w => w.cat === 'greetings')) {
-    sentences.push({ en: 'Thank you and goodbye!', zh: '谢谢你，再见！' });
-  } else if (words.some(w => w.cat === 'numbers')) {
-    sentences.push({ en: 'Ten and ten is twenty.', zh: '十加十等于二十。' });
-  } else if (words.some(w => w.cat === 'colors')) {
-    sentences.push({ en: 'My phone is white and blue.', zh: '我的手机是白蓝色的。' });
-  } else if (words.some(w => w.cat === 'family')) {
-    sentences.push({ en: 'My mother and father are my family.', zh: '我的爸爸和妈妈是我的家人。' });
-  } else if (words.some(w => w.cat === 'food')) {
-    sentences.push({ en: 'I like coffee in the morning.', zh: '我早上喜欢喝咖啡。' });
-  } else if (words.some(w => w.cat === 'objects')) {
-    sentences.push({ en: 'Please open the door and close the window.', zh: '请开门关窗。' });
-  } else {
-    sentences.push({ en: 'Practice makes perfect.', zh: '熟能生巧。' });
-  }
+  sentences.push({ en: 'Keep going! Every small step makes a difference.', zh: '继续加油！每一步都很重要。' });
   return sentences;
 }
 
