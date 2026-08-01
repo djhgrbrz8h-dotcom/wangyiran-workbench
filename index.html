@@ -2005,9 +2005,8 @@ function saveEditTask(taskId) {
 }
 
 function resetAllSampleColors() {
-  if (!confirm('确定重置所有样品的颜色标记吗？\n\n重置后系统会根据截止日期和状态自动判断颜色，手动设置过的也会被清除。')) return;
   store.samples.forEach(s => {
-    s.manualUrgency = null;
+    delete s.manualUrgency;
     s.urgency = calcUrgency(s.deadline, s.status);
   });
   saveData();
@@ -2778,7 +2777,7 @@ function renderHome() {
   // 自动刷新样品颜色
   let colorChanged = false;
   store.samples.forEach(s => {
-    if (!s.manualUrgency) {
+    if (!s.manualUrgency || s.manualUrgency === '') {
       const newUrgency = calcUrgency(s.deadline, s.status);
       if (s.urgency !== newUrgency) {
         s.urgency = newUrgency;
@@ -2903,7 +2902,7 @@ function renderSamples() {
   // 自动刷新所有样品颜色（手动设置过的除外）
   let colorChanged = false;
   store.samples.forEach(s => {
-    if (!s.manualUrgency) {
+    if (!s.manualUrgency || s.manualUrgency === '') {
       const newUrgency = calcUrgency(s.deadline, s.status);
       if (s.urgency !== newUrgency) {
         s.urgency = newUrgency;
