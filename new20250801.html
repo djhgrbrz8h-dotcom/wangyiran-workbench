@@ -2005,13 +2005,16 @@ function saveEditTask(taskId) {
 }
 
 function fixSampleColors() {
+  var count = 0;
   store.samples.forEach(function(s) {
     delete s.manualUrgency;
-    s.urgency = calcUrgency(s.deadline, s.status);
+    var newColor = calcUrgency(s.deadline, s.status);
+    if (s.urgency !== newColor) count++;
+    s.urgency = newColor;
   });
   saveData();
-  renderPage('home');
-  alert('修复完成！已更新 ' + store.samples.length + ' 个样品颜色。\n请去样品页查看已超时分类。');
+  alert('修复完成！' + count + ' 个样品颜色已更新。\n请去样品页查看已超时分类（超时≥3天=深红）。');
+  goPage('samples');
 }
 
 function resetAllSampleColors() {
