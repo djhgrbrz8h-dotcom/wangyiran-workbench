@@ -2056,6 +2056,7 @@ function showAddSampleModal() {
         <option value="yellow">🟡 黄色 - 未超时未拍</option>
         <option value="red">🔴 红色 - 超时 &lt; 3天</option>
         <option value="crimson">⚫ 深红 - 超时 ≥ 3天</option>
+        <option value="pink">💗 粉色 - 可反复拍</option>
       </select>
     </div>
     <div class="form-group"><div class="form-switch">
@@ -2104,7 +2105,8 @@ function showEditSampleModal(id) {
     { v: 'green', t: '🟢 绿色 - 已发布' },
     { v: 'yellow', t: '🟡 黄色 - 未超时未拍' },
     { v: 'red', t: '🔴 红色 - 超时 < 3天' },
-    { v: 'crimson', t: '⚫ 深红 - 超时 ≥ 3天' }
+    { v: 'crimson', t: '⚫ 深红 - 超时 ≥ 3天' },
+    { v: 'pink', t: '💗 粉色 - 可反复拍' }
   ];
   const html = `<div class="modal-title">编辑样品</div><div class="modal-body">
     <div class="form-group"><label class="form-label">样品名称</label><input class="form-input" id="smName" value="${escAttr(sample.name)}"></div>
