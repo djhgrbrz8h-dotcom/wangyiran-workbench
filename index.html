@@ -2764,6 +2764,13 @@ function renderPage(page) {
 // ==================== PAGE RENDERERS ====================
 
 function renderHome() {
+  // 自动刷新样品颜色
+  store.samples.forEach(s => {
+    if (!s.manualUrgency) {
+      s.urgency = calcUrgency(s.deadline, s.status);
+    }
+  });
+
   const visibleTasks = store.tasks.filter(t => !t.hidden && (!t.scheduledDate || t.scheduledDate <= today()));
   const pendingTasks = visibleTasks.filter(t => !t.done).length;
   const publishedCount = store.samples.filter(s => s.status === 'published').length;
@@ -2876,6 +2883,13 @@ function renderHome() {
 }
 
 function renderSamples() {
+  // 自动刷新所有样品颜色（手动设置过的除外）
+  store.samples.forEach(s => {
+    if (!s.manualUrgency) {
+      s.urgency = calcUrgency(s.deadline, s.status);
+    }
+  });
+
   let samples = [...store.samples];
   if (curSampleTab === 'published') samples = samples.filter(s => s.status === 'published');
   else if (curSampleTab === 'repeatable') samples = samples.filter(s => s.status === 'repeatable');
