@@ -2268,17 +2268,25 @@ let samplePhotoData = null;
 function handleSamplePhoto(input) {
   const file = input.files[0];
   if (!file) return;
-  if (file.size > 3 * 1024 * 1024) {
-    toast('图片太大，请选小于3MB的');
-    return;
-  }
   const reader = new FileReader();
   reader.onload = function(e) {
-    samplePhotoData = e.target.result;
-    const preview = document.getElementById('smPhotoPreview');
-    if (preview) {
-      preview.outerHTML = '<img src="' + e.target.result + '" id="smPhotoPreview" style="width:56px;height:56px;border-radius:8px;object-fit:cover;border:1px solid var(--border)" />';
-    }
+    // 压缩图片到小尺寸再存储（约2-5KB一张）
+    var img = new Image();
+    img.onload = function() {
+      var canvas = document.createElement('canvas');
+      var maxW = 200, maxH = 200;
+      var w = img.width, h = img.height;
+      if (w > h) { if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; } } else { if (h > maxH) { w = Math.round(w * maxH / h); h = maxH; } }
+      canvas.width = w; canvas.height = h;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      samplePhotoData = canvas.toDataURL('image/jpeg', 0.5);
+      var preview = document.getElementById('smPhotoPreview');
+      if (preview) {
+        preview.outerHTML = '<img src="' + samplePhotoData + '" id="smPhotoPreview" style="width:56px;height:56px;border-radius:8px;object-fit:cover;border:1px solid var(--border)" />';
+      }
+    };
+    img.src = e.target.result;
   };
   reader.readAsDataURL(file);
 }
