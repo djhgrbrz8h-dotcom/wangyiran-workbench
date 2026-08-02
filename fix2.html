@@ -449,6 +449,10 @@ body{
 .urgency-crimson{background:var(--urgency-crimson)}
 .urgency-pink{background:var(--urgency-pink)}
 
+/* ========== SAMPLE PHOTO ========== */
+.sample-photo{width:36px;height:36px;border-radius:8px;flex-shrink:0;object-fit:cover;margin-right:8px;border:1px solid var(--border)}
+.sample-photo-empty{display:flex;align-items:center;justify-content:center;font-size:16px;background:var(--bg);color:var(--text-muted)}
+
 /* ========== DIARY ========== */
 .diary-entry{
   background:var(--bg-card);border-radius:var(--radius);padding:14px;
@@ -1733,7 +1737,8 @@ const ACTION_HANDLERS = {
         addDate: p.addDate || sm.addDate, deadline: deadline,
         urgency: urgency, manualUrgency: p.manualUrgency || null,
         status: status,
-        publishedDate: status === 'published' ? (p.publishedDate || sm.publishedDate || today()) : (status === 'pending' ? null : sm.publishedDate)
+        publishedDate: status === 'published' ? (p.publishedDate || sm.publishedDate || today()) : (status === 'pending' ? null : sm.publishedDate),
+        photo: p.photo !== undefined ? p.photo : (sm.photo || '')
       });
     }
   },
@@ -2212,6 +2217,16 @@ function showEditSampleModal(id) {
   ];
   const html = `<div class="modal-title">编辑样品</div><div class="modal-body">
     <div class="form-group"><label class="form-label">样品名称</label><input class="form-input" id="smName" value="${escAttr(sample.name)}"></div>
+    <div class="form-group"><label class="form-label">样品照片</label>
+      <div style="display:flex;gap:8px;align-items:center">
+        ${sample.photo ? '<img src="' + escAttr(sample.photo) + '" id="smPhotoPreview" style="width:56px;height:56px;border-radius:8px;object-fit:cover;border:1px solid var(--border)" />' : '<div id="smPhotoPreview" style="width:56px;height:56px;border-radius:8px;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--text-muted)">📷</div>'}
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <button class="btn-pill-outline" style="font-size:12px;padding:6px 12px" onclick="document.getElementById(\'smPhotoInput\').click()">📷 拍照/相册</button>
+          ${sample.photo ? '<button class="btn-pill-outline" style="font-size:12px;padding:6px 12px;color:var(--danger);border-color:var(--danger)" onclick="removeSamplePhoto()">删除照片</button>' : ''}
+        </div>
+        <input type="file" id="smPhotoInput" accept="image/*" capture="environment" style="display:none" onchange="handleSamplePhoto(this)" />
+      </div>
+    </div>
     <div class="form-group"><label class="form-label">品类</label>
       <select class="form-input" id="smCat">${['穿搭','护发','美妆','护肤','好物','健康'].map(c => '<option value="' + c + '"' + (sample.cat === c ? ' selected' : '') + '>' + c + '</option>').join('')}</select>
     </div>
@@ -2248,6 +2263,34 @@ function showEditSampleModal(id) {
   openModal(html);
 }
 
+let samplePhotoData = null;
+
+function handleSamplePhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 3 * 1024 * 1024) {
+    toast('图片太大，请选小于3MB的');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    samplePhotoData = e.target.result;
+    const preview = document.getElementById('smPhotoPreview');
+    if (preview) {
+      preview.outerHTML = '<img src="' + e.target.result + '" id="smPhotoPreview" style="width:56px;height:56px;border-radius:8px;object-fit:cover;border:1px solid var(--border)" />';
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeSamplePhoto() {
+  samplePhotoData = '';
+  const preview = document.getElementById('smPhotoPreview');
+  if (preview) {
+    preview.outerHTML = '<div id="smPhotoPreview" style="width:56px;height:56px;border-radius:8px;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--text-muted)">📷</div>';
+  }
+}
+
 function saveEditSample(id) {
   const name = document.getElementById('smName')?.value?.trim();
   if (!name) { toast('请输入名称'); return; }
@@ -2259,7 +2302,9 @@ function saveEditSample(id) {
   const status = document.getElementById('smStatus')?.value || 'pending';
   const manualUrgency = document.getElementById('smUrgency')?.value || null;
   const script = document.getElementById('smScript')?.classList.contains('on') || false;
-  dispatch('SAMPLE_EDIT', { id, name, cat, tag, note, addDate, deadline, status, manualUrgency, script });
+  const photo = samplePhotoData !== null ? (samplePhotoData || '') : (store.samples.find(s => s.id === id)?.photo || '');
+  dispatch('SAMPLE_EDIT', { id, name, cat, tag, note, addDate, deadline, status, manualUrgency, script, photo });
+  samplePhotoData = null;
   closeModal();
   toast('样品已更新');
 }
@@ -3115,8 +3160,10 @@ function renderSamples() {
       const urgClass = 'urgency-' + (s.urgency || 'green');
       const statusIcon = s.status === 'published' ? '✅' : s.status === 'repeatable' ? '🔁' : '⏳';
       const statusLabel = s.status === 'published' ? '已发布' : s.status === 'repeatable' ? '可反复拍' : '未完成';
+      const photoHtml = s.photo ? '<img src="' + escAttr(s.photo) + '" class="sample-photo" />' : '<div class="sample-photo sample-photo-empty">📷</div>';
       html += `<div class="sample-item" id="sample-${escAttr(s.id)}" onclick="showEditSampleModal('${escAttr(s.id)}')" style="cursor:pointer">
         <div class="urgency-dot ${urgClass}"></div>
+        ${photoHtml}
         <div class="sample-info">
           <div class="sample-name">${esc(s.name)}</div>
           <div class="sample-meta">
