@@ -1467,10 +1467,15 @@ function initDefaultSamples() {
 }
 
 function loadData() {
+  // 先直接从 localStorage 读取并清理 photo 字段
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    var raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
-      const data = JSON.parse(raw);
+      // 用正则直接删除所有 photo 字段（在 JSON 字符串层面操作，更可靠）
+      var cleaned = raw.replace(/"photo":"[^"]*"/g, '').replace(/,"photo":""/g, '').replace(/"photo":"[^"]*",/g, '');
+      // 去掉可能的残留逗号问题
+      cleaned = cleaned.replace(/,}/g, '}').replace(/,\n\s*}/g, '}');
+      var data = JSON.parse(cleaned);
       if (!data.settings) data.settings = {};
       if (!data.settings.userName) data.settings.userName = '王一然';
       if (!data.settings.nickname) data.settings.nickname = '溜溜';
@@ -1487,9 +1492,9 @@ function loadData() {
       }
       if (!raw || data.samples.length < 50) {
         try {
-          const oldRaw = localStorage.getItem('wyr_app_v3');
+          var oldRaw = localStorage.getItem('wyr_app_v3');
           if (oldRaw) {
-            const oldData = JSON.parse(oldRaw);
+            var oldData = JSON.parse(oldRaw);
             if (oldData.samples && oldData.samples.length > data.samples.length) {
               data.samples = oldData.samples;
             }
@@ -1498,7 +1503,7 @@ function loadData() {
       }
       // 旧 tasks 数据兼容性：补全新字段默认值
       if (data.tasks) {
-        data.tasks.forEach(t => {
+        data.tasks.forEach(function(t) {
           if (t.hidden === undefined) t.hidden = false;
           if (t.scheduledDate === undefined) t.scheduledDate = null;
           if (t.repeat === undefined) t.repeat = 'none';
@@ -1506,13 +1511,23 @@ function loadData() {
           if (t.lastDoneDate === undefined) t.lastDoneDate = null;
         });
       }
+      // 再次清理样品中的 photo（以防正则没覆盖全）
+      if (data.samples) {
+        data.samples.forEach(function(s) { if (s.photo) delete s.photo; });
+      }
+      // 立即写回清理后的数据
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      } catch(e) {}
+      // 清理旧版本残留
+      try { localStorage.removeItem('wyr_app_v3'); } catch(e) {}
       return data;
     }
   } catch (e) {}
   try {
-    const oldRaw = localStorage.getItem('wyr_app_v3');
+    var oldRaw = localStorage.getItem('wyr_app_v3');
     if (oldRaw) {
-      const oldData = JSON.parse(oldRaw);
+      var oldData = JSON.parse(oldRaw);
       oldData.settings = oldData.settings || {};
       oldData.settings.userName = oldData.settings.userName || '王一然';
       oldData.settings.nickname = oldData.settings.nickname || '溜溜';
@@ -1527,9 +1542,8 @@ function loadData() {
       if (!oldData.samples || oldData.samples.length === 0) {
         oldData.samples = initDefaultSamples();
       }
-      // 旧 tasks 数据兼容性
       if (oldData.tasks) {
-        oldData.tasks.forEach(t => {
+        oldData.tasks.forEach(function(t) {
           if (t.hidden === undefined) t.hidden = false;
           if (t.scheduledDate === undefined) t.scheduledDate = null;
           if (t.repeat === undefined) t.repeat = 'none';
@@ -1537,10 +1551,13 @@ function loadData() {
           if (t.lastDoneDate === undefined) t.lastDoneDate = null;
         });
       }
+      if (oldData.samples) {
+        oldData.samples.forEach(function(s) { if (s.photo) delete s.photo; });
+      }
       return oldData;
     }
   } catch(e) {}
-  const d = DEFAULT_DATA();
+  var d = DEFAULT_DATA();
   d.samples = initDefaultSamples();
   return d;
 }
@@ -1586,16 +1603,7 @@ function checkBackupReminder() {
 
 // ==================== STORE ====================
 let store = loadData();
-
-// 清理旧的 photo 字段（释放 localStorage 空间）
-(function cleanOldPhotos() {
-  if (!store.samples) return;
-  var cleaned = false;
-  store.samples.forEach(function(s) {
-    if (s.photo) { delete s.photo; cleaned = true; }
-  });
-  if (cleaned) saveData();
-})();
+// loadData 已自动清理 photo 字段并写回 localStorage
 
 let curPage = 'home';
 let curSampleTab = 'all';
