@@ -1587,6 +1587,16 @@ function checkBackupReminder() {
 // ==================== STORE ====================
 let store = loadData();
 
+// 清理旧的 photo 字段（释放 localStorage 空间）
+(function cleanOldPhotos() {
+  if (!store.samples) return;
+  var cleaned = false;
+  store.samples.forEach(function(s) {
+    if (s.photo) { delete s.photo; cleaned = true; }
+  });
+  if (cleaned) saveData();
+})();
+
 let curPage = 'home';
 let curSampleTab = 'all';
 let curSampleCat = 'all';
