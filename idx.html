@@ -2925,6 +2925,7 @@ function renderPage(page) {
 
   main.innerHTML = html;
   if (page === 'sport') { setTimeout(drawWeightChart, 50); }
+  if (page === 'settings') { setTimeout(updateStorageUsage, 100); }
   main.scrollTop = 0;
 }
 
@@ -4811,6 +4812,23 @@ function renderScripts() {
   return html;
 }
 
+function updateStorageUsage() {
+  var el = document.getElementById('storageUsage');
+  if (!el) return;
+  try {
+    var raw = localStorage.getItem(STORAGE_KEY);
+    var size = raw ? (new Blob([raw]).size) : 0;
+    var kb = (size / 1024).toFixed(1);
+    var mb = (size / 1024 / 1024).toFixed(2);
+    var maxMB = 5;
+    var pct = (size / (maxMB * 1024 * 1024) * 100).toFixed(1);
+    var color = pct > 80 ? 'var(--danger)' : pct > 50 ? 'var(--warning)' : 'var(--success)';
+    el.innerHTML = '<span style="color:' + color + ';font-weight:600">' + (mb > 0.5 ? mb + ' MB' : kb + ' KB') + '</span> / ' + maxMB + ' MB <span style="color:var(--text-muted)">（' + pct + '%）</span>';
+  } catch(e) {
+    el.textContent = '无法获取';
+  }
+}
+
 function renderSettings() {
   let html = '';
   const userName = (store.settings && store.settings.userName) || '王一然';
@@ -4880,6 +4898,10 @@ function renderSettings() {
 
   html += '<div class="settings-group">';
   html += '<div class="section-title">数据</div>';
+  html += '<div class="settings-item">';
+  html += '<div class="label">存储用量</div>';
+  html += '<div style="color:var(--text-muted);font-size:13px" id="storageUsage">计算中...</div>';
+  html += '</div>';
   html += '<div class="settings-item">';
   html += '<div><div class="label">自动备份</div><div class="desc">每日自动备份数据</div></div>';
   html += `<div class="toggle${store.settings.autoBackup ? ' on' : ''}" onclick="toggleSetting('autoBackup')"></div>`;
